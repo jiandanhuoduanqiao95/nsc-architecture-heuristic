@@ -1,0 +1,35 @@
+{
+  "alpha_star": 0.5,
+  "beta_star": 0.25,
+  "alpha_grid": [
+    0,
+    0.25,
+    0.5,
+    1,
+    2
+  ],
+  "beta_grid": [
+    0,
+    0.25,
+    0.5,
+    1,
+    2
+  ],
+  "selection_rule": "max dev Spearman rho; rho compared at 12 significant digits",
+  "tie_break": "smaller alpha (or beta)",
+  "tie_handling": "canonical 12 significant digits; shuffle then stable sort",
+  "size_control_rule": "same d_model; min(total)/max(total) >= 0.90; dev pairs = 180",
+  "pool_rule": "reported total <= cap; same pool for every method",
+  "metrics": [
+    "spearman_rho",
+    "kendall_tau_b",
+    "ties",
+    "best_ppl",
+    "regret"
+  ],
+  "figures": [
+    "reorder_alpha_curve",
+    "dev_grid_m2_m3",
+    "selection_regret"
+  ]
+}

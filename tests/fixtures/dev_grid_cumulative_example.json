@@ -1,0 +1,20 @@
+{
+  "method": "cumulative",
+  "grid": [
+    0.0,
+    0.25,
+    0.5,
+    1.0,
+    2.0
+  ],
+  "rho": [
+    0.969745123456,
+    0.971200123456,
+    0.973100123456,
+    0.970500123456,
+    0.966800123456
+  ],
+  "selected": 0.5,
+  "tie_break_used": false,
+  "score_precision": "12 significant digits"
+}
