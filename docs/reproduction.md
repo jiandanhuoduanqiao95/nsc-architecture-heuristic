@@ -90,10 +90,20 @@ verbatim at `docs/starter_README.md`.
   no scored method (original_nsc / position_example / student / ablation / reported_parameters /
   reference_flops) and no ranking statistic is affected. Not a starter bug, not a formula issue;
   no starter file was or will be modified because of it.
-- **Resolution**: CH03 treats `selection[*].methods.random.sd_best_ppl` as
-  exact-equal on Python ≤ 3.10 and accepts relative difference ≤ 1e-12 on
-  Python ≥ 3.11 (documented interpreter artifact). All other fields stay
-  bit-exact everywhere. See `checks/checks.py` (CH03) and this section.
+- **Resolution** (group decision, 2026-10-30): version-aware rule in CH03.
+  (1) Python < 3.11: every field bit-equal, zero tolerance (verified: 3.9.25
+  and 3.10.22 give `PARITY OK`). (2) Python ≥ 3.11: every field bit-equal
+  except `selection[*].methods.random.sd_best_ppl`, which may differ by ≤ 1 ULP
+  (integer ULP distance counted via `math.nextafter`); CH03 prints each
+  tolerated field with path, observed/expected and the ULP distance. Any other
+  field differing by even 1 ULP fails. (3) Reverse tests run inside CH03:
+  perturbing any non-tolerated field by 1 ULP must fail the comparator, and
+  perturbing `sd_best_ppl` by 2 ULP must fail it. (4) `results/checks.json`
+  records `python_version`. (5) On CPython 3.14.6: expected
+  `11.825936547801547`, observed `11.825936547801545`, ULP distance 1; cause is
+  the ≥ 3.11 `statistics.pstdev` rounding change; Python 3.9/3.10 reproduce all
+  fields bit-exactly. (6) Starter files, `expected_development.json` and the
+  fixture are untouched.
 
 ### Source-reading notes (A0.6)
 
