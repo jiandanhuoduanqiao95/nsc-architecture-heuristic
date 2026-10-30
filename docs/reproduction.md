@@ -157,3 +157,43 @@ Notes:
   so `psi_mp(128.0, 32)` returns the cached `ψ(128,32)` without re-running
   int validation once the int call is cached. Scoring always passes ints;
   the unit test for float rejection uses never-cached prime dimensions.
+
+## 9. A3 — check suite and mutation proof
+
+`python3 checks/run_checks.py` (1.8 s) → `18/18 checks passed`, exit 0,
+`results/checks.json` written (python_version / git_commit / timestamp /
+freeze_mode / per-check records). Per-check: CH01 15/15 byte-exact;
+CH02 7/7; CH03 3/3 (bitwise, D0-1 tolerated field, reverse tests); CH04/05
+200/200 bitwise; CH06 200/200; CH07 200/200; CH08 32/32; CH09 200/200;
+CH10 200/200 max rel 1e-9 vs ΣA+F₁; CH11 9846/9846; CH12 4/4; CH13 3/3;
+CH14 2/2; CH15 31/31; CH16 100/100; CH17 6/6 (180 pairs, pools 24/65/83/96);
+CH18 4/4 dry-run (good fixture passes; wrong-α*, missing-field, trials=200
+rejected).
+
+`python3 checks/run_checks.py --mutations` (9.0 s) → `7/7 mutations caught`,
+exit 0, `git status` clean:
+
+```
+MU1 alpha0_returns_zero        caught by CH05, CH08, CH09, CH11, CH16 (200/200 cases failed as expected)
+MU2 prefix_includes_current    caught by CH07, CH08, CH10, CH11 (200/200 cases failed as expected)
+MU3 drop_out_projection        caught by CH04, CH05, CH08, CH11, CH16 (200/200 cases failed as expected)
+MU4 uniform_discount           caught by CH08, CH10, CH11, CH16 (128/32 cases failed as expected)
+MU5 reverse_weights            caught by CH07, CH08, CH10, CH11 (200/200 cases failed as expected)
+MU6 size_control_threshold_095 caught by CH17 (1/6 cases failed as expected)
+MU7 freeze_alpha_mismatch      caught by CH18 (1/4 cases failed as expected)
+7/7 mutations caught
+```
+
+Notes:
+- **CH11 scope**: the plan's prose (A4.3) says "development's 100
+  configurations" but its own measured anchor is **9,845 pairs**, which is
+  the full 200-panel layer-pair count (dev 4,961 + final 4,884). We follow
+  the number: the sweep covers all 200 architectures and reads no label
+  file (scores only). At α=0 the two orders compare with rel ≤ 1e-14, not
+  bitwise — swapping two FFN widths re-pairs A_l with F_l, so the fsum
+  addends round differently (plan anti-pattern #11).
+- CH03 comparator bite is self-tested on every run (1-ULP perturbation of a
+  non-tolerated field must fail; 2-ULP perturbation of `sd_best_ppl` must
+  fail).
+- `--only CH18 --freeze` before C writes `freeze.json` fails gracefully with
+  a pointer to `--dry-run` (exit 1).
