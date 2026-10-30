@@ -56,8 +56,9 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--only", default="",
                         help="comma-separated check ids, e.g. CH04,CH05")
-    parser.add_argument("--json", type=Path, default=DEFAULT_JSON,
-                        help="where to write the result JSON")
+    parser.add_argument("--json", type=Path, default=None,
+                        help="where to write the result JSON "
+                             "(default: results/checks.json on full runs)")
     parser.add_argument("--mutations", action="store_true",
                         help="run the 7-mutation proof instead of the suite")
     parser.add_argument("--dry-run", action="store_true",
@@ -90,9 +91,14 @@ def main():
             print(f"     ... {len(r.failures) - 5} more failures")
     passed = sum(r.passed for r in results)
     print(f"{passed}/{len(results)} checks passed")
-    if args.json:
-        write_json(args.json, results, effective)
-        print(f"wrote {args.json.relative_to(REPO) if args.json.is_relative_to(REPO) else args.json}")
+    # Only full runs write the default record; --only runs would otherwise
+    # clobber results/checks.json with a partial one (explicit --json wins).
+    if args.json is not None or not only:
+        out = args.json if args.json is not None else DEFAULT_JSON
+        write_json(out, results, effective)
+        print(f"wrote {out.relative_to(REPO) if out.is_relative_to(REPO) else out}")
+    elif only:
+        print("(--only run: results/checks.json left untouched)")
     return 0 if passed == len(results) else 1
 
 
