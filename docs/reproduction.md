@@ -197,3 +197,35 @@ Notes:
   fail).
 - `--only CH18 --freeze` before C writes `freeze.json` fails gracefully with
   a pointer to `--dry-run` (exit 1).
+
+## 10. A4 — controlled reorderings
+
+`python3 tools/reorder_pairs.py --write results/reorder_pairs.csv` (1.4 s)
+→ 13 rows (toy + 12 panel sources, A4.2 buckets with eligible-source
+replacement), every row `sign_ok=True`, `nsc_rel_diff = 0.0` (math.fsum is
+permutation-stable here), per-pair projection params/MACs identical;
+`docs/reorder_table.md` generated with the toy S(α) figure data.
+Full sweep: **9,845 pairs, 0 violations** (all 200 architectures, see §9 CH11
+note). Toy row reproduces §1.7: S(0.5) 113.8892745548438 vs 116.244184056…
+(+2.354909500822373).
+
+## 11. A5 — official wiring
+
+`student_score.py` rewritten as the thin wrapper (ALPHA = 0.0, `score` =
+`ctxnsc.score_config(config, ALPHA)`, `ablation` = `original_nsc`).
+`tools/make_variants.py` generated `variants/dev_alpha_{0.00,0.25,0.50,1.00,2.00}.py`.
+
+| Command | Result |
+|---|---|
+| `python3 check_starter.py` | output identical to §2 baseline (it never imports student_score) |
+| `python3 evaluate.py --split development --output results/dev_with_scorer.json` | six rows identical to baseline (student ≡ original_nsc at ALPHA=0) |
+| `python3 tools/compare_expected.py results/dev_with_scorer.json expected_development.json` | only the D0-1 field (1 ULP) — accepted by CH03 per group decision |
+| `python3 evaluate.py --split development --student variants/dev_alpha_0.50.py --output results/dev_alpha_0.50.json` | runs; `student` rho=0.970753 |
+| `python3 tools/make_variants.py --verify` | `VARIANTS OK`: module scores bitwise equal to `ctxnsc.score_config`; the JSON `student` ranking block equals the recomputation from direct scores (canonical/ranks/tau-b conventions) |
+| `python3 tools/selection_ext.py --self-test` | `PARITY OK` + `PREFIX OK` + `TRIALS OK` (0.07 s; 20 randomized parity cases vs `evaluate.select_trials`; 1,000-trial prefix equals 200-trial run bitwise) |
+| `python3 checks/run_checks.py` | still 18/18 with the rewired scorer |
+| `python3 -m unittest discover -s tests -t .` | 51 OK |
+
+`REPEATS=200` in `evaluate.py` untouched; the 1,000-trial main protocol lives
+in `tools/selection_ext.py` for B's evaluator (all methods, same pools, same
+seeds, same tie-handling).
