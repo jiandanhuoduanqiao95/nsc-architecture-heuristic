@@ -197,3 +197,15 @@ Python 3.10.22                                 18/18 (CH03 "full parity")
 cold clone /tmp/fresh (tag tree)               check_starter + 18/18 + 72 tests + 7/7 + PARITY OK
 git                                            a-scorer-v1@fc4c49e, a-scorer-v1.1@<this commit>; tree clean
 ```
+
+Post-snapshot note (honesty record): the second-edition snapshot above was
+written before the round-2 cross-interpreter battery completed. Running the
+full gates on real Python 3.9.25 then found CH15 43/44 — the new
+`tools/d0_1_diagnose.py` imports `fractions`, which the 3.9 fallback
+whitelist also lacked (same class as SR-1). Fixed in commit eb42979;
+CH15 is now 44/44 on 3.9.25 / 3.10.22 / 3.14.6, and every gate above was
+re-run green afterwards (the snapshot's numbers are the post-fix ones).
+Tag note: `a-scorer-v1.1` was briefly created mid-round at f049567 and was
+re-pointed within the same working session to eb42979 (the round's actual
+last commit) so it marks the completed rectification; all commits remain in
+history and `a-scorer-v1` stays at the pre-self-review tree fc4c49e.
