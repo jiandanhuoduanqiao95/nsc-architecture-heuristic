@@ -119,3 +119,41 @@ import `student_score`. No mismatches with the plan were found beyond D0-1.
 ## 6. Fresh-clone check
 
 (filled at A7/A8)
+
+## 7. A1 — archive data audit
+
+`python3 tools/audit_data.py` (0.25 s) → 12/12 checklist items PASS
+(counts, list lengths, divisibility, width histogram 49/51/53/47,
+`d_embed != d_model` 141, constant fields, p10/p50/p90/max = 1.35/2.85/12.83/57.85
+via `statistics.quantiles(n=10)`, >2/5/10/20 = 130/51/24/9, 0 duplicate specs,
+dev PPL 24.35/38.34/74.38, pools 24/65/83/96, 180 size-controlled pairs).
+Outputs: `results/data_audit.csv` (201 lines) + `docs/data_audit.md`.
+Files opened: architectures/resources/splits/development_labels only.
+Plan §1.8 medians (`pearson 0.9986`, `maxdev 0.1412`) are full-200-panel
+quantities; the A1 supplementary table quotes both scopes.
+
+## 8. A2 — core library and tools
+
+| Command | Result |
+|---|---|
+| `python3 -m unittest discover -s tests -t .` | `Ran 51 tests ... OK` (0.5 s) |
+| `python3 tools/show_breakdown.py config_0_j0 0` | 5 layers, `S0=589.868164872 S(0)=589.868164872`, `exact: S(0) == original_nsc -> True` |
+| `python3 tools/show_breakdown.py config_0_j0 0.5` | per-layer A/F/c/factor equal to the plan's hand-check to the printed digit; `S(0.5)=517.201199027 sumA=126.526016726 sumA+F1=216.446042162` |
+| `python3 tools/select_alpha.py --self-test` | `TIE-BREAK OK` + `SELECTION OK` |
+| `python3 tools/normalization_probe.py` | identity (stable cross-multiplied form) worst rel `1.37e-16`, 0 violations; untouched-layer max `|Δfactor| = 6.775e-03`, max `|Δcontribution| = 3.734e+00`; 9 variant rows, no S0-vs-S order flip at α=1 |
+| `python3 tools/weighting_diagnostic.py` | panel-200: `pearson(c_l,(l+1)/L)` median `0.99865`, `maxdev` median `0.14122` max `0.60393`; dev: 71/100 configs `>0.10`; `S(2)/S0` 0.61719/0.71833/0.89939; `pearson(S(2)/S0, L) = -0.469`; `spearman(S(a),S0)` 0.99945/0.99864/0.99760/0.99574; `pearson(M2,M3)` 0.99998/0.99995/0.99988/0.99974 |
+| `python3 tools/check_py39.py` | `PY39 OK` |
+
+Notes:
+- Toy S(α) table (§1.7, both orders, α ∈ {0,.25,.5,1,2,1e12}) reproduced to
+  9 decimals inside `tests/test_score.py`; limits are `ΣA + F_1`.
+- `tools/normalization_probe.py` checks the analytic identity in the
+  cross-multiplied form `c_l·S0 == C_<l` (bound 4·ulp ≈ 8.9e-16) because the
+  literal form `C_<(1/S0' − 1/S0)` amplifies the rounding of `1/S0' − 1/S0`
+  when S0' ≈ S0 (measured worst rel 2.67e-14 — unachievable at 1e-15 in
+  float64 for ANY implementation). The algebraic identity is the same; the
+  literal form's residual is printed as an informational line.
+- `nsc.psi_mp`'s `lru_cache` keys alias int/float (`hash(128.0)==hash(128)`),
+  so `psi_mp(128.0, 32)` returns the cached `ψ(128,32)` without re-running
+  int validation once the int call is cached. Scoring always passes ints;
+  the unit test for float rejection uses never-cached prime dimensions.
