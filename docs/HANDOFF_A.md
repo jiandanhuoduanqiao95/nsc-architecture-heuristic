@@ -9,7 +9,7 @@ point: what is done, how to use it, what is deliberately **not** done.
 |---|---|---|
 | 1 | `check_starter.py` PASS, output = plan §1.7 | `docs/reproduction.md` §2 |
 | 2 | dev evaluation matches `expected_development.json` field-by-field | CH03 (3/3) + `docs/reproduction.md` §5 D0-1 (one 1-ULP field on Python ≥3.11, group-approved rule) |
-| 3 | unit tests | `Ran 51 tests ... OK` |
+| 3 | unit tests | `Ran 72 tests ... OK` |
 | 4 | `checks/run_checks.py` | `18/18 checks passed`, `results/checks.json` |
 | 5 | `checks/run_checks.py --mutations` | `7/7 mutations caught` |
 | 6 | α=0 exact recovery | CH05: 200/200 bitwise |
@@ -21,7 +21,7 @@ point: what is done, how to use it, what is deliberately **not** done.
 | 12 | hygiene | `student_score.py` has exactly ALPHA/score/ablation; starter files byte-identical (CH01, manifest); docs complete; tag exists; cold clone green (below) |
 
 Cold clone (`git clone` → fresh dir): `check_starter.py` PASS,
-`checks/run_checks.py` **18/18**, `--mutations` **7/7**, 51 tests OK.
+`checks/run_checks.py` **18/18**, `--mutations` **7/7**, 72 tests OK.
 
 ## For role B — 5-line starter
 
@@ -90,6 +90,12 @@ results/dev_grid_position.json:selected`, grids `[0,0.25,0.5,1,2]`,
    small perturbation of NSC ordering; sensitivity ≠ prediction.
 5. Fixture pstdev ULP artifact on Python ≥ 3.11 (D0-1) — documented, encoded
    in CH03, bitwise on 3.9/3.10.
+6. **Pending group decision (do not act unilaterally):** the git author
+   email is currently `72655576@my.cityu.edu.hk` (inferred by role A). The
+   actual course account is `72655576@cityu-dg.edu.cn`. If the group confirms
+   the school address, rewrite history with git-filter-repo/mailmap BEFORE
+   pushing to the public remote; until the user decides, the inferred
+   address stays and this file records the question.
 
 ## Contact
 

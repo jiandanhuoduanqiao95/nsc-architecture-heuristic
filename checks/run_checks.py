@@ -79,6 +79,16 @@ def main():
         freeze_mode = None  # decide per presence of freeze.json
 
     results = checks_mod.run_checks(only=only or None, freeze_mode=freeze_mode)
+    # Accounting invariant: n_failed counts failing CASES and can never leave
+    # [0, n_cases]. A violation here is a bug in the check itself -> exit 1.
+    accounting_errors = [f"{r.id}: n_failed={r.n_failed} outside "
+                         f"[0, n_cases={r.n_cases}]"
+                         for r in results if not 0 <= r.n_failed <= r.n_cases]
+    if accounting_errors:
+        for line in accounting_errors:
+            print("ACCOUNTING VIOLATION:", line)
+        print("CHECK ACCOUNTING BROKEN")
+        return 1
     # effective mode for the JSON record
     effective = ("strict" if args.freeze else "dry-run" if args.dry_run else
                  ("strict" if (REPO / "freeze.json").exists() else "dry-run"))

@@ -1,7 +1,7 @@
 {
   "python_version": "3.14.6 | packaged by Anaconda, Inc. | (main, Jul  9 2026, 14:37:38) [GCC 14.3.0]",
-  "git_commit": "dc45e79",
-  "timestamp": "2026-10-31T00:39:05",
+  "git_commit": "13ab75a",
+  "timestamp": "2026-10-31T01:59:39",
   "freeze_mode": "dry-run",
   "checks": [
     {
@@ -111,7 +111,7 @@
       "n_cases": 9846,
       "n_failed": 0,
       "tolerance": "1e-14 / exact",
-      "detail": "toy table + 9845 full-panel layer pairs (dev 4961 + final 4884 = 9845), 0 sweep violations",
+      "detail": "toy table + 9845 full-panel layer pairs (dev 4,961 + final 4,884 = 9,845; structure only, no final label file read; n = 1 + 9,845 = 9,846), 0 violation entries on 0 pairs",
       "failures": []
     },
     {
@@ -141,17 +141,17 @@
       "n_cases": 2,
       "n_failed": 0,
       "tolerance": "0 occurrences",
-      "detail": "AST scan of ctxnsc/+student_score (0) and runtime guard over 5 configs (0 opens)",
+      "detail": "AST scan of ctxnsc/+student_score (0 findings) and runtime guard over 5 configs (0 opens)",
       "failures": []
     },
     {
       "id": "CH15",
       "name": "python39_stdlib",
       "passed": true,
-      "n_cases": 39,
+      "n_cases": 44,
       "n_failed": 0,
       "tolerance": "0 violations",
-      "detail": "39 .py files parse as 3.9, stdlib-only imports",
+      "detail": "44 .py files parse as 3.9, stdlib-only imports",
       "failures": []
     },
     {

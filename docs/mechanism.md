@@ -48,7 +48,10 @@ grouping is unchanged (TA 1's "preserve the starter's matrix grouping").
 - **Reorder direction**: moving the larger FFN earlier strictly increases
   `S(α>0)` (direction lemma: `ΔS = [F(f_j) − F(f_i)]·[1/(1+αc_i) − 1/(1+αc_j)] > 0`
   since `F` is increasing in `f` and `c_i < c_j`). Verified on 9,845 synthetic
-  layer pairs, 0 violations (CH11); the official toy pair gives
+  layer pairs, 0 violations (CH11). Scope, per plan v1.2 A4.3: the structures of
+  ALL 200 archived configurations — dev 4,961 + final 4,884 = 9,845 layer pairs —
+  are used, NO label file is read (scores only); CH11's case count is
+  9,846 = 9,845 + the toy pair. The official toy pair gives
   +2.354909500822373 at α=0.5.
 - **Zero strength**: α=0 recovers NSC bit-for-bit (CH05, 200/200) — the
   ablation removes exactly our mechanism.

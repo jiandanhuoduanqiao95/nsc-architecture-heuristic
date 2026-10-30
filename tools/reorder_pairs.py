@@ -277,25 +277,27 @@ def full_sweep_violations(alpha=0.5, configs=None):
                                            "d_inner", "weight_init_std")}
             for k in configs}
     keys = sorted(slim)
-    violations = []
+    violations = []  # list of (pair_key, message) — one key per (config, i, j)
     count = 0
     for key, i, j, before, after in iter_panel_pairs(slim, keys):
         count += 1
         info = pair_scores(before, after, alpha)
+        pair_key = f"{key}[{i},{j}]"
         if info["projection_params"] != info["projection_params_after"]:
-            violations.append(f"{key}[{i},{j}]: projection params differ")
+            violations.append((pair_key, "projection params differ"))
         if info["reference_macs"] != info["reference_macs_after"]:
-            violations.append(f"{key}[{i},{j}]: reference MACs differ")
+            violations.append((pair_key, "reference MACs differ"))
         if info["nsc_rel_diff"] > 1e-14:
-            violations.append(f"{key}[{i},{j}]: NSC rel diff {info['nsc_rel_diff']:.2e}")
+            violations.append((pair_key,
+                               f"NSC rel diff {info['nsc_rel_diff']:.2e}"))
         if info["s_a0"] == info["s_a0_after"]:
             pass
         elif abs(info["s_a0_after"] - info["s_a0"]) / abs(info["s_a0"]) > 1e-14:
-            violations.append(f"{key}[{i},{j}]: alpha=0 rel diff exceeds 1e-14")
+            violations.append((pair_key, "alpha=0 rel diff exceeds 1e-14"))
         if not (info["s_a05_after"] > info["s_a05"]):
-            violations.append(
-                f"{key}[{i},{j}]: direction violated at alpha={alpha} "
-                f"({info['s_a05_after']!r} <= {info['s_a05']!r})")
+            violations.append((pair_key,
+                               f"direction violated at alpha={alpha} "
+                               f"({info['s_a05_after']!r} <= {info['s_a05']!r})"))
     return count, violations
 
 
@@ -370,8 +372,8 @@ def main():
               f"delta_a05={float(row['delta_a05']):+.6f}  sign_ok={row['sign_ok']}")
     print(f"panel sources: {len(sources)}; full sweep pairs={count}, "
           f"violations={len(violations)}")
-    for v in violations[:5]:
-        print("  ", v)
+    for pair_key, msg in violations[:5]:
+        print("  ", f"{pair_key}: {msg}")
     return 0 if not violations else 1
 
 

@@ -16,10 +16,10 @@ by checks/run_checks.py, CH05).
 from nsc import original_nsc
 from ctxnsc import score_config
 
-# Frozen at 2026-10-31 by Congyang Feng. Selected on the development split
-# only (grid {0, 0.25, 0.5, 1, 2}); do not read environment variables or any
-# file to change it. Role C updates this one line at the freeze, together
-# with freeze.json (validated by CH18).
+# Default (pre-freeze) ALPHA = 0.0; role C sets the frozen value at the
+# freeze, together with freeze.json (validated by CH18). Grid
+# {0, 0.25, 0.5, 1, 2} on the development split only; do not read
+# environment variables or any file to change it.
 ALPHA = 0.0
 
 

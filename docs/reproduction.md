@@ -21,7 +21,7 @@
 |---|---|---|---|
 | `python3 check_starter.py` | 2 PASS lines + 2 Toy lines | identical (below) | 0.27 s |
 | `python3 evaluate.py --split development --output results/dev_baseline.json` | 6 ranking rows + summary | identical (below) | 0.30 s |
-| `python3 tools/compare_expected.py results/dev_baseline.json expected_development.json` | `PARITY OK` | 1-field 1-ULP diff on Python ≥ 3.11; `PARITY OK` on 3.9/3.10 (§5) | <0.1 s |
+| `python3 tools/compare_expected.py results/dev_baseline.json expected_development.json` | `PARITY OK` on 3.9/3.10; `PARITY OK (D0-1: 1 tolerated ULP at …)` on ≥3.11; `--strict` fails on any diff (§5) | <0.1 s |
 | `sha256sum -c docs/starter_manifest.sha256` | all `OK` | all `OK` | <0.1 s |
 
 ### `python3 check_starter.py`
@@ -95,6 +95,20 @@ verbatim at `docs/starter_README.md`.
   no scored method (original_nsc / position_example / student / ablation / reported_parameters /
   reference_flops) and no ranking statistic is affected. Not a starter bug, not a formula issue;
   no starter file was or will be modified because of it.
+- **Diagnostic** (`python3 tools/d0_1_diagnose.py`, exit 0 — reconstructs the
+  exact trial list and evaluates the three computation paths):
+
+```
+trial list: 200 samples, pool=65, seed=20202628
+1. statistics.pstdev      : 11.825936547801545
+2. math.fsum float path   : 11.825936547801547
+3. exact Fraction path    : 11.825936547801547
+fixture sd_best_ppl       : 11.825936547801547
+python                    : 3.14.6
+fsum == exact == fixture  : True
+pstdev on this python     : 1 ULP off the fixture (D0-1, >=3.11 behaviour)
+```
+
 - **Resolution** (group decision, 2026-10-30): version-aware rule in CH03.
   (1) Python < 3.11: every field bit-equal, zero tolerance (verified: 3.9.25
   and 3.10.22 give `PARITY OK`). (2) Python ≥ 3.11: every field bit-equal
@@ -129,7 +143,7 @@ import `student_score`. No mismatches with the plan were found beyond D0-1.
 ```
 python3 check_starter.py       -> PASS (4 lines, identical to §2)
 python3 checks/run_checks.py   -> 18/18 checks passed (1.80 s)
-python3 -m unittest discover -s tests -t . -> OK (51 tests)
+python3 -m unittest discover -s tests -t . -> OK (72 tests)
 python3 checks/run_checks.py --mutations -> 7/7 mutations caught
 ```
 
@@ -149,7 +163,7 @@ quantities; the A1 supplementary table quotes both scopes.
 
 | Command | Result |
 |---|---|
-| `python3 -m unittest discover -s tests -t .` | `Ran 51 tests ... OK` (0.5 s) |
+| `python3 -m unittest discover -s tests -t .` | `Ran 72 tests ... OK` (1.8 s; 51 at A2, 59 after self-review SR-6, 72 with the accounting/parity tests) |
 | `python3 tools/show_breakdown.py config_0_j0 0` | 5 layers, `S0=589.868164872 S(0)=589.868164872`, `exact: S(0) == original_nsc -> True` |
 | `python3 tools/show_breakdown.py config_0_j0 0.5` | per-layer A/F/c/factor equal to the plan's hand-check to the printed digit; `S(0.5)=517.201199027 sumA=126.526016726 sumA+F1=216.446042162` |
 | `python3 tools/select_alpha.py --self-test` | `TIE-BREAK OK` + `SELECTION OK` |
@@ -179,7 +193,7 @@ freeze_mode / per-check records). Per-check: CH01 15/15 byte-exact;
 CH02 7/7; CH03 3/3 (bitwise, D0-1 tolerated field, reverse tests); CH04/05
 200/200 bitwise; CH06 200/200; CH07 200/200; CH08 32/32; CH09 200/200;
 CH10 200/200 max rel 1e-9 vs ΣA+F₁; CH11 9846/9846; CH12 4/4; CH13 3/3;
-CH14 2/2; CH15 31/31; CH16 100/100; CH17 6/6 (180 pairs, pools 24/65/83/96);
+CH14 2/2; CH15 44/44 (31 files at A3; 44 after the self-review additions); CH16 100/100; CH17 6/6 (180 pairs, pools 24/65/83/96);
 CH18 4/4 dry-run (good fixture passes; wrong-α*, missing-field, trials=200
 rejected).
 
@@ -198,13 +212,12 @@ MU7 freeze_alpha_mismatch      caught by CH18 (1/4 cases failed as expected)
 ```
 
 Notes:
-- **CH11 scope**: the plan's prose (A4.3) says "development's 100
-  configurations" but its own measured anchor is **9,845 pairs**, which is
-  the full 200-panel layer-pair count (dev 4,961 + final 4,884). We follow
-  the number: the sweep covers all 200 architectures and reads no label
-  file (scores only). At α=0 the two orders compare with rel ≤ 1e-14, not
-  bitwise — swapping two FFN widths re-pairs A_l with F_l, so the fsum
-  addends round differently (plan anti-pattern #11).
+- **CH11 scope** (plan v1.2 A4.3, updated): the sweep uses the structures of
+  ALL 200 archived configurations — dev 4,961 + final 4,884 = **9,845 pairs** —
+  and reads no label file (scores only, never `final_labels.json`).
+  CH11's n = 9,846 = 9,845 + the toy pair. At α=0 the two orders compare
+  with rel ≤ 1e-14, not bitwise — swapping two FFN widths re-pairs A_l with
+  F_l, so the fsum addends round differently (plan anti-pattern #11).
 - CH03 comparator bite is self-tested on every run (1-ULP perturbation of a
   non-tolerated field must fail; 2-ULP perturbation of `sd_best_ppl` must
   fail).
@@ -232,12 +245,12 @@ note). Toy row reproduces §1.7: S(0.5) 113.8892745548438 vs 116.244184056…
 |---|---|
 | `python3 check_starter.py` | output identical to §2 baseline (it never imports student_score) |
 | `python3 evaluate.py --split development --output results/dev_with_scorer.json` | six rows identical to baseline (student ≡ original_nsc at ALPHA=0) |
-| `python3 tools/compare_expected.py results/dev_with_scorer.json expected_development.json` | only the D0-1 field (1 ULP) — accepted by CH03 per group decision |
+| `python3 tools/compare_expected.py results/dev_with_scorer.json expected_development.json` | `PARITY OK (D0-1: 1 tolerated ULP at $.selection[2]...)` — accepted by CH03 per group decision; `--strict` exits 1 |
 | `python3 evaluate.py --split development --student variants/dev_alpha_0.50.py --output results/dev_alpha_0.50.json` | runs; `student` rho=0.970753 |
 | `python3 tools/make_variants.py --verify` | `VARIANTS OK`: module scores bitwise equal to `ctxnsc.score_config`; the JSON `student` ranking block equals the recomputation from direct scores (canonical/ranks/tau-b conventions) |
 | `python3 tools/selection_ext.py --self-test` | `PARITY OK` + `PREFIX OK` + `TRIALS OK` (0.07 s; 20 randomized parity cases vs `evaluate.select_trials`; 1,000-trial prefix equals 200-trial run bitwise) |
 | `python3 checks/run_checks.py` | still 18/18 with the rewired scorer |
-| `python3 -m unittest discover -s tests -t .` | 51 OK |
+| `python3 -m unittest discover -s tests -t .` | 72 OK |
 
 `REPEATS=200` in `evaluate.py` untouched; the 1,000-trial main protocol lives
 in `tools/selection_ext.py` for B's evaluator (all methods, same pools, same

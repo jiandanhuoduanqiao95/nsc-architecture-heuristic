@@ -136,9 +136,9 @@ def run_mutations(only=None) -> int:
         ids = ", ".join(r.id for r in failed)
         if failed:
             caught += 1
-            print(f"{mid} {description:<26s} caught by {ids} "
-                  f"({failed[0].n_failed}/{failed[0].n_cases} cases failed "
-                  f"as expected)")
+            per_check = ", ".join(f"{r.id} {r.n_failed}/{r.n_cases}"
+                                  for r in failed)
+            print(f"{mid} {description:<26s} caught by {per_check}")
         else:
             print(f"{mid} {description:<26s} NOT CAUGHT (expected {expected}) "
                   f"-- strengthen the checks, do not remove the mutation")

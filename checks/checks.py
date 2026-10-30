@@ -35,6 +35,7 @@ sys.path.insert(0, str(REPO))
 import ctxnsc  # noqa: E402
 import evaluate  # noqa: E402
 import nsc  # noqa: E402
+from checks.parity import compare_payloads, post_freeze_violations  # noqa: E402
 from tools import reorder_pairs  # noqa: E402
 
 # Submodule handles via importlib: ctxnsc/__init__ re-exports a FUNCTION named
@@ -55,8 +56,6 @@ FREEZE_KEYS = {"alpha_star", "beta_star", "alpha_grid", "beta_grid",
                "size_control_rule", "trials", "pool_rule", "metrics",
                "figures"}
 REFERENCE_GRID = [0.0, 0.25, 0.5, 1.0, 2.0]
-TOLERATED_SD_FIELD = re.compile(
-    r"^\$\.selection\[\d+\]\.methods\.random\.sd_best_ppl$")
 
 # Toy anchors (plan §1.7).
 TOY_NSC = 121.820169804017
@@ -93,7 +92,13 @@ def load_dataset() -> dict:
 
 @dataclass
 class CheckResult:
-    """Outcome of one check; ``failures`` holds human-readable case IDs."""
+    """Outcome of one check.
+
+    ``n_failed`` counts FAILING CASES (never failure messages); ``failures``
+    is a human-readable display list and may be shorter than n_failed (e.g.
+    CH11 shows only the first violating pairs). Invariant, asserted by
+    ``run_checks.py``: 0 <= n_failed <= n_cases.
+    """
 
     id: str
     name: str
@@ -112,6 +117,7 @@ class CheckResult:
 
 
 def make_result(cid, name, failures, n_cases, tolerance, detail):
+    """For checks where one failing case produces exactly one entry."""
     return CheckResult(id=cid, name=name, passed=not failures,
                        n_cases=n_cases, n_failed=len(failures),
                        tolerance=tolerance, detail=detail, failures=failures)
@@ -172,71 +178,29 @@ def ch02_toy_conventions(dataset, ctx) -> CheckResult:
 
 
 # ---------------------------------------------------------------------------
-# CH03 expected_dev_parity (version-aware, D0-1)
+# CH03 expected_dev_parity (version-aware, D0-1; shared comparator)
 # ---------------------------------------------------------------------------
 
-def ulp_distance(expected: float, actual: float) -> float:
-    """Integer ULP distance between two floats via math.nextafter steps."""
-    if expected == actual:
-        return 0
-    if not (math.isfinite(expected) and math.isfinite(actual)):
-        return math.inf
-    dist, x = 0, expected
-    target, step = (actual, math.inf) if actual > expected else (actual, -math.inf)
-    while dist <= 16:
-        if x == target:
-            return dist
-        if dist == 16:
-            break
-        x = math.nextafter(x, step)
-        dist += 1
-    return math.inf
+def parity_failure_entries(expected, actual, alpha):
+    """Comparator + post-freeze filtering + case accounting for CH03.
 
-
-def compare_payloads(expected, actual, path="$") -> Tuple[List[str], List[str]]:
-    """Exact field-by-field comparison with the D0-1 tolerated field.
-
-    Returns (violations, tolerated). Every field must be bit-equal except
-    ``selection[*].methods.random.sd_best_ppl`` on Python >= 3.11, which may
-    differ by at most 1 ULP (statistics.pstdev rounding change).
+    Returns (failures, violations, tolerated, n_sd_checked) where ``failures``
+    has at most one entry per case (main compare / two reverse probes are
+    handled by the caller), so n_failed <= n_cases always holds.
     """
-    violations, tolerated = [], []
-    stack = [(path, expected, actual)]
-    while stack:
-        path, exp, act = stack.pop()
-        if isinstance(exp, dict) and isinstance(act, dict):
-            for key in sorted(set(exp) | set(act)):
-                if key in ("scoring_seconds", "timing_note"):
-                    continue
-                child = f"{path}.{key}"
-                if key not in exp:
-                    violations.append(f"{child}: missing in expected")
-                elif key not in act:
-                    violations.append(f"{child}: missing in actual")
-                else:
-                    stack.append((child, exp[key], act[key]))
-        elif isinstance(exp, list) and isinstance(act, list):
-            if len(exp) != len(act):
-                violations.append(f"{path}: list length {len(exp)} != {len(act)}")
-            else:
-                stack.extend((f"{path}[{i}]", e, a)
-                             for i, (e, a) in enumerate(zip(exp, act)))
-        else:
-            if TOLERATED_SD_FIELD.match(path) and isinstance(exp, float) \
-                    and isinstance(act, float):
-                dist = ulp_distance(exp, act)
-                if dist <= 1:
-                    if dist > 0:  # report only real differences, not exact hits
-                        tolerated.append(f"{path}: got {act!r} exp {exp!r} "
-                                         f"(ULP={dist:g})")
-                    continue
-            same_type = type(exp) is type(act)
-            numbers = isinstance(exp, (int, float)) and isinstance(act, (int, float))
-            if exp != act or not (same_type or (numbers and not
-                                                isinstance(exp, bool)
-                                                and not isinstance(act, bool))):
-                violations.append(f"{path}: expected {exp!r} vs actual {act!r}")
-    return violations, tolerated
+    violations, tolerated, n_sd_checked = compare_payloads(expected, actual)
+    if alpha != 0.0:
+        # Post-freeze: student/ablation diffs are the expected effect of the
+        # tuned scorer; EVERYTHING else (baseline methods, random baselines,
+        # eligible/oracle_ppl, structure) must still be bit-equal.
+        violations = post_freeze_violations(violations)
+    failures = []
+    if violations:
+        shown = "; ".join(violations[:3])
+        more = "" if len(violations) <= 3 else f" (+{len(violations) - 3} more)"
+        failures.append(f"field parity: {len(violations)} differing field(s): "
+                        f"{shown}{more}")
+    return failures, violations, tolerated, n_sd_checked
 
 
 def ch03_expected_dev_parity(dataset, ctx) -> CheckResult:
@@ -248,28 +212,16 @@ def ch03_expected_dev_parity(dataset, ctx) -> CheckResult:
     module = importlib.util.module_from_spec(module_spec)
     module_spec.loader.exec_module(module)
     alpha = float(getattr(module, "ALPHA", 0.0))
-    violations, tolerated = compare_payloads(expected, actual)
+    failures, violations, tolerated, n_sd = parity_failure_entries(
+        expected, actual, alpha)
     if alpha != 0.0:
-        # Tuned scorer: the four baseline methods must still match exactly;
-        # student/ablation differences are expected and only recorded.
-        violations = [v for v in violations
-                      if not v.startswith("$.ranking.student")
-                      and not v.startswith("$.ranking.ablation")
-                      and "selection" not in v]
-        detail = (f"ALPHA={alpha:g}: baseline methods must match; "
+        detail = (f"ALPHA={alpha:g}: post-freeze — baselines (4 methods, "
+                  f"random, eligible/oracle_ppl) must match; "
                   f"student/ablation recorded as changed")
     else:
         detail = ("full parity" if not tolerated else
                   f"parity; differing-but-tolerated field(s): "
                   + "; ".join(tolerated))
-    # Collapse the (variable-length) field-diff list into one failure entry so
-    # that n_failed stays within n_cases; the full list goes into the message.
-    failures = []
-    if violations:
-        shown = "; ".join(violations[:3])
-        more = "" if len(violations) <= 3 else f" (+{len(violations) - 3} more)"
-        failures.append(f"field parity: {len(violations)} differing field(s): "
-                        f"{shown}{more}")
 
     # Reverse tests: prove the comparator still bites (meaningful only when
     # the main comparison is a full-parity one, i.e. ALPHA == 0).
@@ -277,7 +229,7 @@ def ch03_expected_dev_parity(dataset, ctx) -> CheckResult:
         probe = copy.deepcopy(expected)
         rho = probe["ranking"]["original_nsc"]["spearman_rho"]
         probe["ranking"]["original_nsc"]["spearman_rho"] = math.nextafter(rho, math.inf)
-        rev_violations, _ = compare_payloads(probe, actual)
+        rev_violations, _t, _n = compare_payloads(probe, actual)
         if not rev_violations:
             failures.append("reverse test failed: 1-ULP perturbation of a "
                             "non-tolerated field was NOT rejected")
@@ -285,12 +237,12 @@ def ch03_expected_dev_parity(dataset, ctx) -> CheckResult:
         sd = probe["selection"][0]["methods"]["random"]["sd_best_ppl"]
         two_up = math.nextafter(math.nextafter(sd, math.inf), math.inf)
         probe["selection"][0]["methods"]["random"]["sd_best_ppl"] = two_up
-        rev_violations, _ = compare_payloads(probe, actual)
+        rev_violations, _t, _n = compare_payloads(probe, actual)
         if not rev_violations:
             failures.append("reverse test failed: 2-ULP perturbation of "
                             "sd_best_ppl was NOT rejected")
-    return make_result("CH03", "expected_dev_parity", failures, 3, "bitwise (D0-1: 1 ULP)",
-                       detail)
+    return make_result("CH03", "expected_dev_parity", failures, 3,
+                       "bitwise (D0-1: 1 ULP)", detail)
 
 
 # ---------------------------------------------------------------------------
@@ -304,14 +256,17 @@ def ch04_layer_identity(dataset, ctx) -> CheckResult:
         cfg = configs[key]
         _spec, terms = spec_terms(cfg)
         caps = nsc.layer_capacities(cfg)
+        problems = []
         for l, (term, cap) in enumerate(zip(terms, caps)):
             if term.attn + term.ffn != cap:
-                failures.append(f"{key}: layer {l + 1} A+F {term.attn + term.ffn!r} "
+                problems.append(f"layer {l + 1} A+F {term.attn + term.ffn!r} "
                                 f"!= layer_capacities {cap!r}")
                 break
-        else:
-            if math.fsum(t.attn + t.ffn for t in terms) != nsc.original_nsc(cfg):
-                failures.append(f"{key}: fsum(A+F) != original_nsc")
+        if not problems and math.fsum(t.attn + t.ffn for t in terms) \
+                != nsc.original_nsc(cfg):
+            problems.append("fsum(A+F) != original_nsc")
+        if problems:  # one entry per failing case (= per config)
+            failures.append(f"{key}: " + "; ".join(problems))
     return make_result("CH04", "layer_identity", failures, len(configs),
                        "bitwise", "200 configs, elementwise vs nsc.layer_capacities")
 
@@ -339,13 +294,16 @@ def ch06_finite_positive(dataset, ctx) -> CheckResult:
         spec, terms = spec_terms(cfg)
         ratios = prefix_mod.cumulative_ratios(terms)
         s0 = prefix_mod.s0_from_terms(terms)
+        problems = []
         if not (math.isfinite(s0) and s0 > 0.0):
-            failures.append(f"{key}: S0 not finite/positive")
+            problems.append("S0 not finite/positive")
         if not all(math.isfinite(c) for c in ratios):
-            failures.append(f"{key}: non-finite ratio")
+            problems.append("non-finite ratio")
         for alpha, score in score_mod.scores_for_alphas(cfg, ALPHA_PROBE).items():
             if not (math.isfinite(score) and score > 0.0):
-                failures.append(f"{key}: S(alpha={alpha}) not finite/positive")
+                problems.append(f"S(alpha={alpha}) not finite/positive")
+        if problems:  # one entry per failing case (= per config)
+            failures.append(f"{key}: " + "; ".join(problems))
     return make_result("CH06", "finite_positive", failures, len(configs),
                        "isfinite", "S0>0, ratios finite, 5 alphas finite>0")
 
@@ -360,15 +318,18 @@ def ch07_prefix_properties(dataset, ctx) -> CheckResult:
         if ratios[0] != 0.0:
             failures.append(f"{key}: ratios[0] = {ratios[0]!r} != 0.0")
             continue
+        problems = []
         if any(a >= b for a, b in zip(ratios, ratios[1:])):
-            failures.append(f"{key}: ratios not strictly increasing")
+            problems.append("ratios not strictly increasing")
         if not ratios[-1] < 1.0:
-            failures.append(f"{key}: ratios[-1] = {ratios[-1]!r} >= 1")
+            problems.append(f"ratios[-1] = {ratios[-1]!r} >= 1")
         s0 = prefix_mod.s0_from_terms(terms)
         expected_last = 1.0 - (terms[-1].attn + terms[-1].ffn) / s0
         if abs(ratios[-1] - expected_last) > 1e-15:
-            failures.append(f"{key}: ratios[-1] != 1-(A_L+F_L)/S0 "
+            problems.append(f"ratios[-1] != 1-(A_L+F_L)/S0 "
                             f"(|d|={abs(ratios[-1] - expected_last):.2e})")
+        if problems:  # one entry per failing case (= per config)
+            failures.append(f"{key}: " + "; ".join(problems))
     return make_result("CH07", "prefix_properties", failures, len(configs),
                        "bitwise / 1e-15", "strict prefixes, c_1=0, c_L<1")
 
@@ -392,13 +353,16 @@ def ch08_single_layer(dataset, ctx) -> CheckResult:
                 ratios = prefix_mod.cumulative_ratios(terms)
                 s0 = prefix_mod.s0_from_terms(terms)
                 tag = f"L1 d={d} h={h} f={f}"
+                problems = []
                 if ratios != [0.0]:
-                    failures.append(f"{tag}: ratios {ratios} != [0.0]")
+                    problems.append(f"ratios {ratios} != [0.0]")
                 if s0 != nsc.original_nsc(cfg):
-                    failures.append(f"{tag}: S0 != original_nsc")
+                    problems.append("S0 != original_nsc")
                 for alpha in ALPHA_PROBE:
                     if score_mod.score_config(cfg, alpha) != s0:
-                        failures.append(f"{tag}: S({alpha}) != S0")
+                        problems.append(f"S({alpha}) != S0")
+                if problems:  # one entry per failing case
+                    failures.append(f"{tag}: " + "; ".join(problems))
     return make_result("CH08", "single_layer", failures, n_cases,
                        "bitwise", "single-layer S(alpha) == S0 for all alpha")
 
@@ -414,12 +378,15 @@ def ch09_alpha_monotone(dataset, ctx) -> CheckResult:
     for key in sorted(configs):
         cfg = configs[key]
         scores = [score_mod.score_config(cfg, a) for a in ALPHA_PROBE]
+        problems = []
         if any(b > a for a, b in zip(scores, scores[1:])):
-            failures.append(f"{key}: S(alpha) increases somewhere")
+            problems.append("S(alpha) increases somewhere")
         if cfg["n_layer"] >= 2 and all(b == a for a, b in zip(scores, scores[1:])):
-            failures.append(f"{key}: S(alpha) constant for L>=2")
+            problems.append("S(alpha) constant for L>=2")
         if any(b < a for a, b in zip(scores, scores[1:])):
             strictly += 1
+        if problems:  # one entry per failing case (= per config)
+            failures.append(f"{key}: " + "; ".join(problems))
     detail = f"strictly decreasing on {strictly}/{len(configs)} configs"
     return make_result("CH09", "alpha_monotone", failures, len(configs),
                        "1e-15", detail)
@@ -436,11 +403,14 @@ def ch10_alpha_limit(dataset, ctx) -> CheckResult:
         value = score_mod.score_config(cfg, ALPHA_LIMIT_PROBE)
         rel = abs(value - expected) / abs(expected)
         worst = max(worst, rel)
-        if rel > 1e-9:
-            failures.append(f"{key}: S(1e12) rel err {rel:.2e} vs sum(A)+F_1")
         sum_attn = math.fsum(t.attn for t in terms)
+        problems = []
+        if rel > 1e-9:
+            problems.append(f"S(1e12) rel err {rel:.2e} vs sum(A)+F_1")
         if abs(value - sum_attn) <= 1e-3 * abs(expected - sum_attn):
-            failures.append(f"{key}: S(1e12) collapsed to sum(A) (limit bug)")
+            problems.append("S(1e12) collapsed to sum(A) (limit bug)")
+        if problems:  # one entry per failing case (= per config), even if
+            failures.append(f"{key}: " + "; ".join(problems))  # both sub-checks hit
     return make_result("CH10", "alpha_limit", failures, len(configs), "1e-9",
                        f"max rel err {worst:.2e} vs sum(A)+F_1")
 
@@ -461,25 +431,38 @@ def ch11_reorder_controls(dataset, ctx) -> CheckResult:
         (ALPHA_LIMIT_PROBE, "late"): 75.029376696,
         (ALPHA_LIMIT_PROBE, "early"): 97.400699829,
     }
+    toy_problems = []
     for (alpha, tag), expected in toy_expected.items():
         cfg = reorder_pairs.TOY_A if tag == "late" else reorder_pairs.TOY_B
         if not math.isclose(score_mod.score_config(cfg, alpha), expected,
                             rel_tol=1e-9):
-            failures.append(f"toy[{tag}] S({alpha:g}) != {expected}")
+            toy_problems.append(f"toy[{tag}] S({alpha:g}) != {expected}")
     info = reorder_pairs.pair_scores(reorder_pairs.TOY_A, reorder_pairs.TOY_B, 0.5)
     if info["projection_params"] != TOY_PARAMS or info["reference_macs"] != TOY_MACS:
-        failures.append("toy pair: resource invariants broken")
+        toy_problems.append("toy pair: resource invariants broken")
     if not info["s_a05_after"] > info["s_a05"]:
-        failures.append("toy pair: direction violated at alpha=0.5")
+        toy_problems.append("toy pair: direction violated at alpha=0.5")
 
     configs = dataset["configs"]
-    count, sweep_failures = reorder_pairs.full_sweep_violations(0.5, configs=configs)
-    failures.extend(sweep_failures[:10])
-    return make_result("CH11", "reorder_controls", failures, 1 + count,
-                       "1e-14 / exact",
-                       f"toy table + {count} full-panel layer pairs "
-                       f"(dev 4961 + final 4884 = 9845), "
-                       f"{len(sweep_failures)} sweep violations")
+    count, sweep = reorder_pairs.full_sweep_violations(0.5, configs=configs)
+    violating_pairs = sorted({pair_key for pair_key, _msg in sweep})
+    # The toy pair is ONE case; collapse its sub-findings into one entry.
+    toy_failures = [f"{len(toy_problems)} toy findings: "
+                    + "; ".join(toy_problems[:4])] if toy_problems else []
+    failures = toy_failures + [f"{pair_key}: " + msg
+                               for pair_key, msg in sweep[:10]]
+    if len(sweep) > 10:
+        failures.append(f"... {len(sweep) - 10} more violation entries on "
+                        f"{len(violating_pairs)} pairs")
+    n_failed = len(toy_failures) + len(violating_pairs)
+    detail = (f"toy table + {count} full-panel layer pairs "
+              f"(dev 4,961 + final 4,884 = 9,845; structure only, no final "
+              f"label file read; n = 1 + 9,845 = 9,846), "
+              f"{len(sweep)} violation entries on {len(violating_pairs)} pairs")
+    return CheckResult(id="CH11", name="reorder_controls",
+                       passed=n_failed == 0, n_cases=1 + count,
+                       n_failed=n_failed, tolerance="1e-14 / exact",
+                       detail=detail, failures=failures)
 
 
 # ---------------------------------------------------------------------------
@@ -579,11 +562,8 @@ def ast_label_violations(paths) -> List[str]:
 
 
 def ch14_no_label_access(dataset, ctx) -> CheckResult:
-    failures = []
     targets = sorted((REPO / "ctxnsc").glob("*.py")) + [REPO / "student_score.py"]
     violations = ast_label_violations(targets)
-    if violations:
-        failures.extend(violations)
     # runtime guard: scoring must not open any file
     opened = []
     real_open = builtins.open
@@ -616,9 +596,16 @@ def ch14_no_label_access(dataset, ctx) -> CheckResult:
         Path.read_bytes = real_read_bytes
     if opened:
         failures.append(f"runtime guard caught {len(opened)} file opens")
-    return make_result("CH14", "no_label_access", failures, 2, "0 occurrences",
-                       f"AST scan of ctxnsc/+student_score (0) and runtime "
-                       f"guard over 5 configs (0 opens)")
+    # n_failed counts the two CASES (AST scan / runtime guard), not messages.
+    n_failed = (1 if violations else 0) + (1 if opened else 0)
+    return CheckResult(id="CH14", name="no_label_access", passed=n_failed == 0,
+                       n_cases=2, n_failed=n_failed, tolerance="0 occurrences",
+                       detail=(f"AST scan of ctxnsc/+student_score "
+                               f"({len(violations)} findings) and runtime "
+                               f"guard over 5 configs ({len(opened)} opens)"),
+                       failures=violations + (["runtime guard caught "
+                                               f"{len(opened)} file opens"]
+                                              if opened else []))
 
 
 # ---------------------------------------------------------------------------
@@ -627,14 +614,20 @@ def ch14_no_label_access(dataset, ctx) -> CheckResult:
 
 def ch15_python39_stdlib(dataset, ctx) -> CheckResult:
     from checks.py39_rules import iter_repo_py_files, scan_file
-    failures = []
     files = list(iter_repo_py_files())
+    by_file = {}
     for path in files:
         syntax, imports = scan_file(path)
-        failures.extend(syntax + imports)
-    return make_result("CH15", "python39_stdlib", failures, len(files),
-                       "0 violations",
-                       f"{len(files)} .py files parse as 3.9, stdlib-only imports")
+        if syntax or imports:
+            by_file[str(path)] = syntax + imports
+    # n_failed counts failing FILES (one case per file); all findings shown.
+    display = [finding for findings in by_file.values() for finding in findings]
+    return CheckResult(id="CH15", name="python39_stdlib",
+                       passed=not by_file, n_cases=len(files),
+                       n_failed=len(by_file), tolerance="0 violations",
+                       detail=(f"{len(files)} .py files parse as 3.9, "
+                               f"stdlib-only imports"),
+                       failures=display)
 
 
 # ---------------------------------------------------------------------------
@@ -653,19 +646,20 @@ def ch16_breakdown_consistency(dataset, ctx) -> CheckResult:
         for alpha in ALPHA_PROBE:
             n_cases += 1
             bd = breakdown_mod.breakdown(terms, alpha)
+            problems = []
             if bd.total != score_mod.score_config(cfg, alpha):
-                failures.append(f"{key} alpha={alpha}: breakdown total != score")
+                problems.append("breakdown total != score")
             if bd.s0 != nsc.original_nsc(cfg):
-                failures.append(f"{key} alpha={alpha}: breakdown S0 != original_nsc")
+                problems.append("breakdown S0 != original_nsc")
             if math.fsum(item.contribution for item in bd.items) != bd.total:
-                failures.append(f"{key} alpha={alpha}: fsum(contributions) != total")
+                problems.append("fsum(contributions) != total")
             for item, c in zip(bd.items, ratios):
                 if item.ratio != c:
-                    failures.append(f"{key} alpha={alpha}: ratio mismatch layer "
-                                    f"{item.layer}")
+                    problems.append(f"ratio mismatch layer {item.layer}")
                 if item.factor != 1.0 / (1.0 + alpha * c):
-                    failures.append(f"{key} alpha={alpha}: factor mismatch layer "
-                                    f"{item.layer}")
+                    problems.append(f"factor mismatch layer {item.layer}")
+            if problems:  # one entry per failing case (= per (config, alpha))
+                failures.append(f"{key} alpha={alpha}: " + "; ".join(problems))
     return make_result("CH16", "breakdown_consistency", failures, n_cases,
                        "bitwise", "20 configs x 5 alphas, contributions/ratios/factors")
 

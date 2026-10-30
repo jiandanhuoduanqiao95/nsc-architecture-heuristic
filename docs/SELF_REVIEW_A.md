@@ -146,3 +146,54 @@ git status                  clean after commit; tags starter-import, a-scorer-v1
   and the CH03 1-ULP exception are the two standing deviations from the
   plan's literal text; both are documented with evidence and need group
   sign-off at the next meeting.
+
+## Round 6 — external review response (10-item rectification, 2026-10-31)
+
+The first "ready" verdict was premature. External review confirmed the gates
+but found four P1s and re-scoped several items. Every item below carries its
+command and the raw key output; the full gate battery was re-run after the
+fixes (see Final gate snapshot, second edition).
+
+| ID | Sev | Item | Problem (as reviewed) | Fix | Evidence (command → key raw output) | Pass |
+|---|---|---|---|---|---|---|
+| R6-1 | P1 | n_failed semantics | `--mutations` printed `n_failed > n_cases` (MU2 CH08 160/32, MU4 CH08 128/32 & CH16 744/100, MU5 CH10 400/200): entries were failure MESSAGES, not failing cases | `make_result` contract rewritten to "one entry per failing case" in CH04/06/07/08/09/10/16; CH11 counts violating PAIRS (toy = 1 case); CH14 counts the two case units; CH15 counts failing files; `run_checks.py` now asserts `0 <= n_failed <= n_cases` per result (exit 1 on breach) | `python3 checks/run_checks.py --mutations` → `MU4 ... caught by CH08 32/32, CH10 200/200, CH11 9819/9846, CH16 80/100` — no line exceeds n_cases | ✅ (CH16 80/100, see note) |
+| R6-2 | P1 | compare_expected D0-1 | exited 1 on 3.14 for the documented artifact; comparator duplicated between CH03 and the CLI | ONE comparator extracted to `checks/parity.py` (version gate + ULP rule + post-freeze filter); CLI applies it by default, `--strict` forces pure bitwise | `python3 tools/compare_expected.py results/dev_with_scorer.json expected_development.json` → `PARITY OK (D0-1: 1 tolerated ULP at $.selection[2].methods.random.sd_best_ppl; 8 random-sd fields checked; mode: default (D0-1 on))` exit 0; `--strict` → `PARITY FAILED (1 violations)` exit 1 | ✅ |
+| R6-3 | P1 | doc counts | README 3×, HANDOFF 2×, reproduction 4× still carried the pre-self-review counts (the test count 51, the CH15 count written as 31-of-31; live: 72 tests, CH15 44/44) | all 11 spots updated with evolution notes; new `tools/check_docs_counts.py` (blacklist + live-count presence, exit 1 on drift) | `python3 tools/check_docs_counts.py` → `live counts: 72 tests, CH15 44/44 .py files` / `DOC COUNTS OK` | ✅ |
+| R6-4 | P1 | CH03 post-freeze filter | `"selection" not in v` also dropped BASELINE selection diffs (random/eligible/oracle_ppl) | filter moved to `checks/parity.post_freeze_violations`: only `$.ranking.{student,ablation}` and `$.selection[*].methods.{student,ablation}.*` are dropped | unit tests: student-only mutation at ALPHA=0.5 → PASS; perturbed `oracle_ppl`/`eligible`/`random.mean_best_ppl` at ALPHA=0.5 → FAIL; `python3 checks/run_checks.py --only CH03` → `PASS (3/3)` | ✅ |
+| R6-5 | P2 | CH03 version gate | 1-ULP tolerance must apply only on ≥3.11 | gate lives in `checks/parity.sd_tolerance_allowed()`; tests toggle it | 3.10.22 full run: CH03 detail `full parity`, 18/18; 3.14.6: `parity; differing-but-tolerated field(s): …(ULP=1)` | ✅ |
+| R6-6 | P2 | CH11 scope docs | mechanism/reproduction did not spell out the final-config rule | both now state: structures of all 200 configs (dev 4,961 + final 4,884 = 9,845), no label file read, 9,846 = 9,845 + toy — per plan v1.2 A4.3 | grep in `docs/mechanism.md` §4 and `docs/reproduction.md` §9 | ✅ |
+| R6-7 | P2 | git email | `72655576@my.cityu.edu.hk` was inferred; real course account is `72655576@cityu-dg.edu.cn` | STOPPED — recorded as pending user decision in HANDOFF known-items; no history rewrite until the user decides | `docs/HANDOFF_A.md` item 6 | ⏳ user |
+| R6-8 | P2 | tag discipline | `a-scorer-v1` had been MOVED twice (hiding history) | tag restored to the handoff commit `fc4c49e`; self-review work gets `a-scorer-v1.1` (annotated) | `git rev-parse a-scorer-v1^{commit}` → fc4c49e; `git tag -n` lists both | ✅ |
+| R6-9 | P2 | student_score wording | "Frozen at 2026-10-31" misleading (pre-freeze default) | reworded to "Default (pre-freeze) ALPHA = 0.0; role C sets the frozen value at the freeze, together with freeze.json" | `sed -n` of the constant block | ✅ |
+| R6-10 | P2 | D0-1 evidence | three-path numbers existed only in prose | `tools/d0_1_diagnose.py` reconstructs the 20M/k=1 trial list and prints pstdev / fsum / Fraction | on 3.14.6: `statistics.pstdev: 11.825936547801545`, `fsum: 11.825936547801547`, `Fraction: 11.825936547801547`, `fsum == exact == fixture: True`, exit 0; output embedded in reproduction.md D0-1 | ✅ |
+
+Note on R6-1/CH16: under MU4 the plan-expected `CH16 100/100` is
+mathematically unreachable — at α=0 the uniform factor 1/(1+0) is
+bit-identical to the correct 1/(1+0·c), so exactly the 80 non-zero-α cases
+can fail. The honest output is `CH16 80/100`. The user-required `100/100`
+case-count demonstration is provided by MU3 (`CH16 100/100` in the same
+output — every layer corrupted) and pinned by
+`tests/test_check_accounting.py` (both the 100/100-under-MU3 and the
+80/100-under-MU4 contracts are asserted). No check was weakened to make the
+number come out as 100.
+
+Regression caught during this round: the first SR-4-style collapse removed
+`failures`' definition (NameError in CH03); caught by the mandatory full-gate
+re-run, fixed, re-run green.
+
+### Final gate snapshot, second edition (this tree)
+
+```
+python3 check_starter.py                       PASS (4 lines = plan §1.7)
+python3 -m unittest discover -s tests -t .     Ran 72 tests ... OK
+python3 checks/run_checks.py                   18/18 checks passed (accounting asserted)
+python3 checks/run_checks.py --mutations       7/7; per-check case ratios, none > n_cases
+python3 tools/compare_expected.py              PARITY OK (D0-1: 1 tolerated ULP …) exit 0
+python3 tools/compare_expected.py --strict     PARITY FAILED (1 violations) exit 1
+python3 tools/d0_1_diagnose.py                 fsum == exact == fixture: True, exit 0
+python3 tools/check_docs_counts.py             DOC COUNTS OK
+Python 3.9.25                                  check_starter PASS; 18/18; CH15 44/44; same-interpreter PARITY OK
+Python 3.10.22                                 18/18 (CH03 "full parity")
+cold clone /tmp/fresh (tag tree)               check_starter + 18/18 + 72 tests + 7/7 + PARITY OK
+git                                            a-scorer-v1@fc4c49e, a-scorer-v1.1@<this commit>; tree clean
+```
