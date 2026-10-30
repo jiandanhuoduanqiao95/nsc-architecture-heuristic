@@ -118,7 +118,15 @@ import `student_score`. No mismatches with the plan were found beyond D0-1.
 
 ## 6. Fresh-clone check
 
-(filled at A7/A8)
+`rm -rf /tmp/fresh && git clone "$REPO" /tmp/fresh` (2026-10-31, tag
+`a-scorer-v1` tree), then in `/tmp/fresh`:
+
+```
+python3 check_starter.py       -> PASS (4 lines, identical to §2)
+python3 checks/run_checks.py   -> 18/18 checks passed (1.80 s)
+python3 -m unittest discover -s tests -t . -> OK (51 tests)
+python3 checks/run_checks.py --mutations -> 7/7 mutations caught
+```
 
 ## 7. A1 — archive data audit
 
