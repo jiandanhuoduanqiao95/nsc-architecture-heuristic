@@ -29,6 +29,7 @@ _FALLBACK_STDLIB = {
     "__future__", "argparse", "array", "ast", "asyncio", "base64", "bisect",
     "builtins", "calendar", "cmath", "collections", "concurrent", "contextlib",
     "copy", "csv", "ctypes", "dataclasses", "datetime", "decimal", "difflib",
+    "fractions",
     "enum", "functools", "gc", "getopt", "gettext", "glob", "gzip", "hashlib",
     "heapq", "html", "http", "importlib", "io", "itertools", "json", "keyword",
     "linecache", "locale", "logging", "math", "mimetypes", "multiprocessing",
