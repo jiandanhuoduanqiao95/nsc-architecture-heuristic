@@ -40,6 +40,11 @@ def min_med_max(values):
             f"max={max(values):.5f}")
 
 
+def min_med_max_dict(values):
+    return {"min": min(values), "median": statistics.median(values),
+            "max": max(values)}
+
+
 def main():
     configs = json.loads((REPO / "data" / "architectures.json").read_text())
     splits = json.loads((REPO / "data" / "splits.json").read_text())
@@ -88,7 +93,28 @@ def main():
         writer.writeheader()
         writer.writerows(rows)
 
-    print(f"rows: {len(rows)} dev configs -> {out.relative_to(REPO)}")
+    # Persist every printed aggregate so docs can be re-derived from artifacts
+    # (docs/mechanism.md section 6 quotes these numbers).
+    summary = {
+        "n_dev_rows": len(rows),
+        "pearson_c_vs_position": {"dev": min_med_max_dict(pearsons),
+                                  "panel": min_med_max_dict(panel_pearsons)},
+        "max_abs_dev": {"dev": min_med_max_dict(devs),
+                        "panel": min_med_max_dict(panel_devs)},
+        "dev_configs_max_abs_dev_gt_0_10": sum(d > 0.10 for d in devs),
+        "s2_over_s0_dev": min_med_max_dict(s2_ratios),
+        "pearson_s2_over_s0_vs_n_layer_dev": pearson(s2_ratios, depths),
+        "per_alpha": [
+            {"alpha": a,
+             "spearman_S_vs_S0_dev": spearman(m2_scores[a], s0_scores),
+             "pearson_M2_M3_dev": pearson(m2_scores[a], m3_scores[a])}
+            for a in ALPHAS],
+    }
+    summary_path = REPO / "results" / "weighting_summary.json"
+    summary_path.write_text(json.dumps(summary, indent=2) + "\n", encoding="utf-8")
+
+    print(f"rows: {len(rows)} dev configs -> {out.relative_to(REPO)}; "
+          f"summary -> {summary_path.relative_to(REPO)}")
     print(f"[dev 100] pearson(c_l, (l+1)/L): {min_med_max(pearsons)}")
     print(f"[dev 100] max_l |c_l - (l+1)/L|: {min_med_max(devs)}")
     print(f"[dev 100] configs with max_abs_dev > 0.10: "

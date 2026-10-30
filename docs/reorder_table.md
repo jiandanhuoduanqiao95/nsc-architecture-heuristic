@@ -24,6 +24,8 @@ the original NSC matches to rel <= 1e-14.
 
 Full direction sweep: **9845 pairs, 0 violations** at alpha=0.5 (all 200 archive configurations, every layer pair with differing FFN widths; dev 4,961 + final 4,884 = 9,845; scores only, no label file read).
 
+Machine-checkable record: `results/reorder_summary.json` (sweep_pairs / sweep_violations / csv_rows).
+
 ## Figure data: the toy pair's S(alpha) curves
 
 Suggested figure (whether to render it is role C's call): x-axis alpha in {0, 0.25, 0.5, 1, 2}, y-axis S(alpha); two lines = the toy

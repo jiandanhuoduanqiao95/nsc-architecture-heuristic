@@ -67,12 +67,12 @@ rel ≤ 1e-9 on all 200 configs, and asserts the limit is *not* ΣA.
 
 | Diagnostic | Value | Source |
 |---|---|---|
-| `S(2)/S0` | 0.61719 / 0.71833 / 0.89939 (min/med/max) | `weighting_diagnostic.csv` |
-| `Spearman(S(α), S0)`, α = .25/.5/1/2 | 0.99945 / 0.99864 / 0.99760 / 0.99574 | idem |
-| `Pearson(M2, M3)`, α = .25/.5/1/2 | 0.99998 / 0.99995 / 0.99988 / 0.99974 | idem |
-| `Pearson(c_l, (l+1)/L)` per config (panel 200) | min 0.98673, median 0.99865, max 1.00000 | idem |
-| `max_l |c_l − (l+1)/L|` (panel 200) | median 0.14122, max 0.60393; 71/100 dev configs > 0.10 | idem |
-| `Pearson(S(2)/S0, n_layer)` | −0.469 (deeper models are discounted more) | idem |
+| `S(2)/S0` | 0.61719 / 0.71833 / 0.89939 (min/med/max) | `results/weighting_summary.json` |
+| `Spearman(S(α), S0)`, α = .25/.5/1/2 | 0.99945 / 0.99864 / 0.99760 / 0.99574 | `results/weighting_summary.json` (`per_alpha`) |
+| `Pearson(M2, M3)`, α = .25/.5/1/2 | 0.99998 / 0.99995 / 0.99988 / 0.99974 | `results/weighting_summary.json` (`per_alpha`) |
+| `Pearson(c_l, (l+1)/L)` per config (panel 200) | min 0.98673, median 0.99865, max 1.00000 | `results/weighting_summary.json` |
+| `max_l |c_l − (l+1)/L|` (panel 200) | median 0.14122, max 0.60393; 71/100 dev configs > 0.10 | `results/weighting_summary.json` |
+| `Pearson(S(2)/S0, n_layer)` | -0.469 (deeper models are discounted more) | `results/weighting_summary.json` |
 
 ## 7. Honest reading of item 6
 
@@ -105,7 +105,7 @@ because the denominator S0 changes:
 Δc_l = C_<l · (1/S0' − 1/S0)      (verified per row; see tolerance note)
 ```
 
-Measured (`results/normalization_probe.csv`, 60 rows): untouched-layer
+Measured (`results/normalization_probe.csv`, 60 rows; aggregates in `results/normalization_summary.json`): untouched-layer
 max |Δfactor| = 6.775e-03, max |Δcontribution| = 3.734 — i.e. "only changing
 a later layer" moves earlier discounts materially. *Tolerance note:* the
 identity is verified in the algebraically identical cross-multiplied form

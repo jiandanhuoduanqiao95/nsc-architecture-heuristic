@@ -86,6 +86,11 @@ verbatim at `docs/starter_README.md`.
   implementation is 1 ULP below the exactly rounded result. The fixture was generated with the ≤ 3.10 behavior.
 - **Interpreter matrix (full dev run vs fixture)**: 3.9.25 → `PARITY OK`; 3.10.22 → `PARITY OK`;
   3.11.15 / 3.12.3 / 3.14.6 → exactly this 1 field differs by 1 ULP.
+- **Same-interpreter rule**: parity holds when the harness output is produced
+  *and* compared by the same interpreter (verified 2026-10-31: 3.9.25 and
+  3.10.22 runs of `evaluate.py` compare `PARITY OK` against the fixture).
+  JSON artifacts generated on 3.14 (e.g. `results/dev_*.json`) differ from
+  the fixture by that same 1 ULP no matter which interpreter compares them.
 - **Impact**: the differing field belongs to the uniform-random baseline of the selection experiment;
   no scored method (original_nsc / position_example / student / ablation / reported_parameters /
   reference_flops) and no ranking statistic is affected. Not a starter bug, not a formula issue;

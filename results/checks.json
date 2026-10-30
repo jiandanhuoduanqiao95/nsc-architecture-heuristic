@@ -1,7 +1,7 @@
 {
   "python_version": "3.14.6 | packaged by Anaconda, Inc. | (main, Jul  9 2026, 14:37:38) [GCC 14.3.0]",
-  "git_commit": "40a87f9",
-  "timestamp": "2026-10-31T00:22:25",
+  "git_commit": "dc45e79",
+  "timestamp": "2026-10-31T00:39:05",
   "freeze_mode": "dry-run",
   "checks": [
     {
@@ -31,7 +31,7 @@
       "n_cases": 3,
       "n_failed": 0,
       "tolerance": "bitwise (D0-1: 1 ULP)",
-      "detail": "parity with 8 tolerated field(s): $.selection[7].methods.random.sd_best_ppl: got 5.831759468781277 exp 5.831759468781277 (ULP=0); $.selection[6].methods.random.sd_best_ppl: got 12.685277615639524 exp 12.685277615639524 (ULP=0); $.selection[5].methods.random.sd_best_ppl: got 6.056024925285046 exp 6.056024925285046 (ULP=0); $.selection[4].methods.random.sd_best_ppl: got 12.426377462653855 exp 12.426377462653855 (ULP=0); $.selection[3].methods.random.sd_best_ppl: got 4.644388694896243 exp 4.644388694896243 (ULP=0); $.selection[2].methods.random.sd_best_ppl: got 11.825936547801545 exp 11.825936547801547 (ULP=1); $.selection[1].methods.random.sd_best_ppl: got 4.348067262877772 exp 4.348067262877772 (ULP=0); $.selection[0].methods.random.sd_best_ppl: got 10.887353448967778 exp 10.887353448967778 (ULP=0)",
+      "detail": "parity; differing-but-tolerated field(s): $.selection[2].methods.random.sd_best_ppl: got 11.825936547801545 exp 11.825936547801547 (ULP=1)",
       "failures": []
     },
     {
@@ -148,10 +148,10 @@
       "id": "CH15",
       "name": "python39_stdlib",
       "passed": true,
-      "n_cases": 38,
+      "n_cases": 39,
       "n_failed": 0,
       "tolerance": "0 violations",
-      "detail": "38 .py files parse as 3.9, stdlib-only imports",
+      "detail": "39 .py files parse as 3.9, stdlib-only imports",
       "failures": []
     },
     {

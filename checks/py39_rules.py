@@ -22,11 +22,13 @@ REPO = Path(__file__).resolve().parents[1]
 LOCAL_ROOTS = {"nsc", "evaluate", "check_starter", "student_score",
                "ctxnsc", "checks", "tests", "tools", "variants"}
 
-# Fallback for Python 3.9, which lacks sys.stdlib_module_names.
+# Fallback for Python 3.9, which lacks sys.stdlib_module_names. Verified by
+# running CH15 under a real 3.9 interpreter (self-review R1/SR-1): any import
+# root our repo uses must be listed here or CH15 fails on 3.9 only.
 _FALLBACK_STDLIB = {
     "__future__", "argparse", "array", "ast", "asyncio", "base64", "bisect",
-    "calendar", "cmath", "collections", "concurrent", "contextlib", "copy",
-    "csv", "ctypes", "dataclasses", "datetime", "decimal", "difflib",
+    "builtins", "calendar", "cmath", "collections", "concurrent", "contextlib",
+    "copy", "csv", "ctypes", "dataclasses", "datetime", "decimal", "difflib",
     "enum", "functools", "gc", "getopt", "gettext", "glob", "gzip", "hashlib",
     "heapq", "html", "http", "importlib", "io", "itertools", "json", "keyword",
     "linecache", "locale", "logging", "math", "mimetypes", "multiprocessing",
@@ -35,8 +37,8 @@ _FALLBACK_STDLIB = {
     "site", "socket", "sqlite3", "ssl", "stat", "statistics", "string",
     "struct", "subprocess", "sys", "tarfile", "tempfile", "textwrap",
     "threading", "time", "timeit", "tkinter", "traceback", "types", "typing",
-    "unicodedata", "urllib", "uuid", "warnings", "wave", "weakref", "xml",
-    "zipfile", "zipimport", "zlib",
+    "unicodedata", "unittest", "urllib", "uuid", "warnings", "wave", "weakref",
+    "xml", "zipfile", "zipimport", "zlib",
 }
 
 

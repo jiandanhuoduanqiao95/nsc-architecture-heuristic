@@ -149,6 +149,19 @@ def main():
         writer.writeheader()
         writer.writerows(rows)
 
+    summary = {
+        "picked_configs": picked,
+        "alpha": alpha,
+        "identity_stable_worst_rel": worst_identity,
+        "identity_failures": identity_failures,
+        "identity_literal_worst_rel_informational": worst_literal,
+        "untouched_max_abs_delta_factor": unchanged_factor_max,
+        "untouched_max_abs_delta_contribution": unchanged_contrib_max,
+        "variants": [f"{s:g}" for s in VARIANTS],
+    }
+    summary_path = REPO / "results" / "normalization_summary.json"
+    summary_path.write_text(json.dumps(summary, indent=2) + "\n", encoding="utf-8")
+
     print(f"picked configs (min/median/max S0): {', '.join(picked)}")
     print(f"identity (stable cross-multiplied form, rel): worst "
           f"{worst_identity:.2e} (bound 8.9e-16, plan cap 1e-15); "
@@ -165,7 +178,8 @@ def main():
         print(f"  {cid} [{variant}]: S0 {s0:.4f}->{s0_new:.4f} "
               f"({s0_sign:+d}), S {s_base:.4f}->{s_new:.4f} ({s_sign:+d}) "
               f"-> {verdict}")
-    print(f"wrote {out.relative_to(REPO)} ({len(rows)} rows)")
+    print(f"wrote {out.relative_to(REPO)} ({len(rows)} rows); "
+          f"summary -> {summary_path.relative_to(REPO)}")
     if identity_failures:
         print("IDENTITY VIOLATION")
         return 1

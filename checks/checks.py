@@ -226,8 +226,9 @@ def compare_payloads(expected, actual, path="$") -> Tuple[List[str], List[str]]:
                     and isinstance(act, float):
                 dist = ulp_distance(exp, act)
                 if dist <= 1:
-                    tolerated.append(f"{path}: got {act!r} exp {exp!r} "
-                                     f"(ULP={dist:g})")
+                    if dist > 0:  # report only real differences, not exact hits
+                        tolerated.append(f"{path}: got {act!r} exp {exp!r} "
+                                         f"(ULP={dist:g})")
                     continue
             same_type = type(exp) is type(act)
             numbers = isinstance(exp, (int, float)) and isinstance(act, (int, float))
@@ -251,8 +252,6 @@ def ch03_expected_dev_parity(dataset, ctx) -> CheckResult:
     if alpha != 0.0:
         # Tuned scorer: the four baseline methods must still match exactly;
         # student/ablation differences are expected and only recorded.
-        baseline_keys = ("original_nsc", "position_example",
-                         "reported_parameters", "reference_flops")
         violations = [v for v in violations
                       if not v.startswith("$.ranking.student")
                       and not v.startswith("$.ranking.ablation")
@@ -261,9 +260,16 @@ def ch03_expected_dev_parity(dataset, ctx) -> CheckResult:
                   f"student/ablation recorded as changed")
     else:
         detail = ("full parity" if not tolerated else
-                  f"parity with {len(tolerated)} tolerated field(s): "
+                  f"parity; differing-but-tolerated field(s): "
                   + "; ".join(tolerated))
-    failures = list(violations)
+    # Collapse the (variable-length) field-diff list into one failure entry so
+    # that n_failed stays within n_cases; the full list goes into the message.
+    failures = []
+    if violations:
+        shown = "; ".join(violations[:3])
+        more = "" if len(violations) <= 3 else f" (+{len(violations) - 3} more)"
+        failures.append(f"field parity: {len(violations)} differing field(s): "
+                        f"{shown}{more}")
 
     # Reverse tests: prove the comparator still bites (meaningful only when
     # the main comparison is a full-parity one, i.e. ALPHA == 0).

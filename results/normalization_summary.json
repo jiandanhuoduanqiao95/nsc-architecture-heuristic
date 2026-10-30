@@ -1,0 +1,18 @@
+{
+  "picked_configs": [
+    "config_11_j5",
+    "config_11_j2",
+    "config_12_j5"
+  ],
+  "alpha": 1.0,
+  "identity_stable_worst_rel": 1.3736813878533162e-16,
+  "identity_failures": 0,
+  "identity_literal_worst_rel_informational": 2.6722300042643465e-14,
+  "untouched_max_abs_delta_factor": 0.00677543344681808,
+  "untouched_max_abs_delta_contribution": 3.733976159609824,
+  "variants": [
+    "0.5",
+    "1.25",
+    "2"
+  ]
+}

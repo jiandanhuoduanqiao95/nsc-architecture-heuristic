@@ -74,7 +74,8 @@ tools/                  # audit, breakdown, diagnostics, alpha selector, C3 prob
 variants/               # fixed-alpha modules for the dev grid (evaluate.py --student)
 docs/                   # reproduction, interface, mechanism, data_audit, reorder_table,
                         #   starter README archive, starter manifest (SHA-256)
-results/                # generated JSON/CSV artifacts (script outputs, never hand-edited)
+results/                # generated JSON/CSV artifacts (script outputs, never hand-edited;
+                        #   *_summary.json carry the aggregates mechanism.md quotes)
 ```
 
 ## Method in one paragraph

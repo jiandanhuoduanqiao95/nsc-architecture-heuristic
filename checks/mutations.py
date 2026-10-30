@@ -76,7 +76,6 @@ def apply(patch_list):
 def build_mutations():
     """[(id, description, patch_list, expected_catcher)] in execution order."""
     original_score_config = SCORE_MOD.score_config
-    original_layer_terms = TERMS_MOD.layer_terms
     original_load_freeze = checks_mod.load_freeze
 
     def mu1_score_config(config, alpha=0.0):

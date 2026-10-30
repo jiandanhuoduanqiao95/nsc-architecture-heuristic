@@ -236,6 +236,9 @@ def write_markdown(rows, toy_before_scores, toy_after_scores, sweep_count,
         " configurations, every layer pair with differing FFN widths;"
         " dev 4,961 + final 4,884 = 9,845; scores only, no label file read).",
         "",
+        "Machine-checkable record: `results/reorder_summary.json` "
+        "(sweep_pairs / sweep_violations / csv_rows).",
+        "",
         "## Figure data: the toy pair's S(alpha) curves",
         "",
         "Suggested figure (whether to render it is role C's call): x-axis"
@@ -353,7 +356,12 @@ def main():
         toy_before, toy_after = score_pairs[rows[0]["pair_id"]]
         write_markdown(rows, toy_before, toy_after, count, len(violations),
                        REPO / "docs" / "reorder_table.md")
-        print(f"wrote docs/reorder_table.md")
+        summary = {"alpha": 0.5, "csv_rows": len(rows), "sweep_pairs": count,
+                   "sweep_violations": len(violations),
+                   "panel_sources": len(sources)}
+        (REPO / "results" / "reorder_summary.json").write_text(
+            json.dumps(summary, indent=2) + "\n", encoding="utf-8")
+        print("wrote docs/reorder_table.md; summary -> results/reorder_summary.json")
 
     for row in rows:
         print(f"{row['pair_id']}  src={row['source_config']:<14s} "
