@@ -132,7 +132,7 @@ select_alpha --self-test    TIE-BREAK OK / SELECTION OK
 reorder                     9,845 pairs, 0 violations (9846/9846 with toy)
 py39                        PY39 OK; CH15 39/39 on 3.9.25 / 3.10.22 / 3.14.6
 cold clone /tmp/fresh       check_starter PASS + 18/18 + 59 OK + 7/7
-git status                  clean after commit; tags starter-import, a-scorer-v1
+git status                  clean at the round-1 closing commit 13ab75a; while the gates above ran, the tree carried the (then-uncommitted) SR fixes, committed immediately after
 ```
 
 ## Notes for the team (not single-handedly decidable)
@@ -195,7 +195,7 @@ python3 tools/check_docs_counts.py             DOC COUNTS OK
 Python 3.9.25                                  check_starter PASS; 18/18; CH15 44/44; same-interpreter PARITY OK
 Python 3.10.22                                 18/18 (CH03 "full parity")
 cold clone /tmp/fresh (tag tree)               check_starter + 18/18 + 72 tests + 7/7 + PARITY OK
-git                                            a-scorer-v1@fc4c49e, a-scorer-v1.1@<this commit>; tree clean
+git                                            a-scorer-v1 restored to fc4c49e, a-scorer-v1.1 created; while the gates above ran, the tree carried the (then-uncommitted) round-2 fixes, committed as f049567/eb42979 immediately after
 ```
 
 Post-snapshot note (honesty record): the second-edition snapshot above was
@@ -209,3 +209,28 @@ Tag note: `a-scorer-v1.1` was briefly created mid-round at f049567 and was
 re-pointed within the same working session to eb42979 (the round's actual
 last commit) so it marks the completed rectification; all commits remain in
 history and `a-scorer-v1` stays at the pre-self-review tree fc4c49e.
+
+## Round 7 — handoff closeout (external review items 1–8, 2026-10-31)
+
+| # | Item | Fix | Evidence |
+|---|---|---|---|
+| 1 | HANDOFF tag refs | all three `a-scorer-v1` mentions → `a-scorer-final`; group message template, review_checklist legend and reproduction fresh-clone note synced; tag-map paragraph added | `grep -rn "a-scorer-v1" docs/` → only the intentional tag-map/template lines |
+| 2 | final tag | final code commit → full-gate rerun → `results/checks.json` regenerated with FULL `git_commit` → committed → annotated tag `a-scorer-final`; no existing tag moved | `git show a-scorer-final:results/checks.json \| grep git_commit`; `git rev-parse a-scorer-final` (see note below) |
+| 3 | checks.json committed / tree clean | JSON committed in the tagged tree; snapshots re-worded to state WHEN the tree was clean (see the two corrected lines above) | `git status --porcelain` → empty at the closing commit |
+| 4 | email | unchanged, still pending user decision (HANDOFF item 6) | — |
+| 5 | v1.1 history | kept; no further re-pointing; "v1.1 was moved once" remains recorded above and in the tag-map | — |
+| 6 | test rename | `test_ch03_post_freeze_end_to_end` → `test_post_freeze_filter_logic` (it exercises `parity_failure_entries` on synthetic payloads; full CH03 runs in the gate) | `grep -n "def test_post_freeze_filter_logic" tests/test_parity.py` |
+| 7 | artifacts/labels | `results/selfreview_dev.json` untracked and removed (identical ALPHA=0 evidence lives in the committed `results/dev_with_scorer.json`); run_checks PASS lines carry `[pass]` (FAIL → `[failed]`); mutation per-check tokens end with `failed` | `git ls-files results/ \| grep selfreview` → empty; run_checks/mutations output below |
+| 8 | reruns | full battery on 3.14.6, 3.9.25, and a cold clone of the `a-scorer-final` tag | outputs below |
+
+Note on the `git_commit` field (item 2's acceptance): a file cannot contain
+the SHA-1 of the commit that contains it (self-reference / SHA-1 fixed point
+— impossible). What is recorded and verified instead: `results/checks.json`'s
+`git_commit` is the FULL hash of the commit the suite ran on, and the tag
+`a-scorer-final` sits on a commit whose ONLY delta to that commit is the
+JSON itself. Verifiable exactly:
+
+```
+git show a-scorer-final:results/checks.json | grep git_commit   ==  git rev-parse a-scorer-final^
+git diff --stat a-scorer-final^ a-scorer-final                  ->  results/checks.json only
+```

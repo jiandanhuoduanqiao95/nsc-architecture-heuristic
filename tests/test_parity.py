@@ -1,6 +1,9 @@
 """Tests for the shared parity comparator (D0-1 rule, version gate,
 post-freeze filtering) — the ONE comparator behind CH03 and
-tools/compare_expected.py."""
+tools/compare_expected.py. The post-freeze cases exercise
+``checks.parity_failure_entries`` (comparator + filter + case accounting)
+directly on synthetic payloads; the full ``ch03_expected_dev_parity`` path
+is covered by the real gate (CH03 3/3)."""
 import copy
 import json
 import math
@@ -108,7 +111,7 @@ class PostFreezeFilterTests(unittest.TestCase):
         remaining = post_freeze_violations(self.violations_by_path(mutate))
         self.assertEqual(len(remaining), 4)
 
-    def test_ch03_post_freeze_end_to_end(self):
+    def test_post_freeze_filter_logic(self):
         expected = expected_fixture()
 
         def student_only(actual):

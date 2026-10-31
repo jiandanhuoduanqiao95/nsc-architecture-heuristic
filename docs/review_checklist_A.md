@@ -1,6 +1,6 @@
 # Role A — 16-item cross-review checklist (A8.1)
 
-Status legend: **PASS** = verified on tag `a-scorer-v1`; **READY** = A's tool
+Status legend: **PASS** = verified on tag `a-scorer-final`; **READY** = A's tool
 check exists and passes, the B/C artifact it audits does not exist yet (run
 the listed command when it does); **PENDING** = needs the report/evaluator
 that B/C will produce.

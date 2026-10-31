@@ -136,7 +136,7 @@ def run_mutations(only=None) -> int:
         ids = ", ".join(r.id for r in failed)
         if failed:
             caught += 1
-            per_check = ", ".join(f"{r.id} {r.n_failed}/{r.n_cases}"
+            per_check = ", ".join(f"{r.id} {r.n_failed}/{r.n_cases} failed"
                                   for r in failed)
             print(f"{mid} {description:<26s} caught by {per_check}")
         else:

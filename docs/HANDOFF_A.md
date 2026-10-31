@@ -1,7 +1,13 @@
-# HANDOFF — Role A → roles B and C (tag `a-scorer-v1`, 2026-10-31)
+# HANDOFF — Role A → roles B and C (tag `a-scorer-final`, 2026-10-31)
 
-Role A's full deliverable is on tag `a-scorer-v1`. This file is the entry
+Role A's full deliverable is on tag `a-scorer-final`. This file is the entry
 point: what is done, how to use it, what is deliberately **not** done.
+
+Tag map: `a-scorer-v1` marks the pre-self-review tree (fc4c49e, kept for
+history, never moved again); `a-scorer-v1.1` marks the self-review
+rectification; **`a-scorer-final` is the handoff tag** — the checks.json
+recorded in it was generated on the commit directly beneath it (see
+`git show a-scorer-final:results/checks.json | grep git_commit`).
 
 ## A-DoD: 12/12 done (evidence per item)
 
@@ -105,7 +111,7 @@ changes to `ctxnsc/` require A's sign-off per `AGENTS.md`.
 ## Group message template
 
 ```
-@B @C 角色 A 已交接：tag a-scorer-v1。
+@B @C 角色 A 已交接：tag a-scorer-final（历史标记：a-scorer-v1 = 自审前树，a-scorer-v1.1 = 自审整改；二者不再移动）。
 接口：docs/interface.md（score_config / scores_for_alphas / breakdown_config / score_with_ratios）。
 验收：checks/run_checks.py → 18/18；--mutations → 7/7；CH17/CH18 已过（CH18 为 dry-run）。
 已完成：check_starter PASS；dev 与 expected 逐字段一致；α=0 逐位一致；恒等式 200/200；重排 9,845 对 0 违例。

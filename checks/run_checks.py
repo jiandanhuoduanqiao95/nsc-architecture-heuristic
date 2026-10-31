@@ -32,7 +32,7 @@ DEFAULT_JSON = REPO / "results" / "checks.json"
 
 def git_commit() -> str:
     try:
-        proc = subprocess.run(["git", "rev-parse", "--short", "HEAD"],
+        proc = subprocess.run(["git", "rev-parse", "HEAD"],
                               cwd=str(REPO), capture_output=True, text=True,
                               timeout=10)
         return proc.stdout.strip() if proc.returncode == 0 else "unknown"
@@ -93,8 +93,10 @@ def main():
     effective = ("strict" if args.freeze else "dry-run" if args.dry_run else
                  ("strict" if (REPO / "freeze.json").exists() else "dry-run"))
     for r in results:
-        print(f"{r.id} {r.name:<22s} {'PASS' if r.passed else 'FAIL'} "
-              f"({r.n_cases - r.n_failed}/{r.n_cases}, {r.tolerance})")
+        verdict = "PASS" if r.passed else "FAIL"
+        tag = "pass" if r.passed else "failed"
+        print(f"{r.id} {r.name:<22s} {verdict} "
+              f"({r.n_cases - r.n_failed}/{r.n_cases}, {r.tolerance}) [{tag}]")
         for failure in r.failures[:5]:
             print("    ", failure)
         if len(r.failures) > 5:

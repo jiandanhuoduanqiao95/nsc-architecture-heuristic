@@ -138,7 +138,7 @@ import `student_score`. No mismatches with the plan were found beyond D0-1.
 ## 6. Fresh-clone check
 
 `rm -rf /tmp/fresh && git clone "$REPO" /tmp/fresh` (2026-10-31, tag
-`a-scorer-v1` tree), then in `/tmp/fresh`:
+`a-scorer-final` tree), then in `/tmp/fresh`:
 
 ```
 python3 check_starter.py       -> PASS (4 lines, identical to §2)
