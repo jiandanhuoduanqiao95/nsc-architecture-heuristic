@@ -242,4 +242,7 @@ message carried a typo — it named the recorded run commit as `4d41ed4…`
 commit message was amended (folding in the closeout doc edits and the
 `--no-write` flag) and `a-scorer-final` was rebuilt ONCE at the amended
 commit; no other tag was touched and no history was hidden — both the
-typo and this note are recorded here.
+typo and this note are recorded here. Composition note: the review_checklist/reproduction tag
+pointers were already part of the PARENT commit; the amend's 5-file delta
+is README.md, checks/run_checks.py, docs/HANDOFF_A.md,
+docs/SELF_REVIEW_A.md and results/checks.json.

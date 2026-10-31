@@ -12,6 +12,9 @@ the tag commit itself adds the JSON plus the closeout doc edits and the
 `--no-write` flag. The tag was rebuilt ONCE (user-approved) to correct a
 typo in the results-commit message (it named 4d41ed4…; the recorded run
 commit is c6166c6…), then frozen.
+The tagged tree adds, relative to its parent, the `--no-write` flag
+(CLI-only; check logic unchanged) and the closeout docs; the JSON was
+generated on the parent commit.
 
 ## A-DoD: 12/12 done (evidence per item)
 

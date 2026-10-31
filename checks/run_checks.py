@@ -109,13 +109,15 @@ def main():
     print(f"{passed}/{len(results)} checks passed")
     # Only full runs write the default record; --only runs would otherwise
     # clobber results/checks.json with a partial one (explicit --json wins).
-    if args.no_write:
-        print("(--no-write: results/checks.json left untouched)")
-    elif args.json is not None or not only:
-        out = args.json if args.json is not None else DEFAULT_JSON
-        write_json(out, results, effective)
-        print(f"wrote {out.relative_to(REPO) if out.is_relative_to(REPO) else out}")
-    elif only:
+    if args.json is not None:  # explicit --json always wins (even with --no-write)
+        write_json(args.json, results, effective)
+        print(f"wrote {args.json.relative_to(REPO) if args.json.is_relative_to(REPO) else args.json}")
+    elif args.no_write:
+        print("(--no-write: the default results/checks.json is left untouched)")
+    elif not only:
+        write_json(DEFAULT_JSON, results, effective)
+        print(f"wrote {DEFAULT_JSON.relative_to(REPO)}")
+    else:
         print("(--only run: results/checks.json left untouched)")
     return 0 if passed == len(results) else 1
 
