@@ -1,6 +1,6 @@
 # Role A — self-review and self-correction record (2026-10-31)
 
-Scope: everything on tag `a-scorer-v1`. Method: five rounds (mechanical
+Scope: everything on tags `a-scorer-v1` through `a-scorer-final`. Method: five rounds (mechanical
 acceptance → per-file review → adversarial review → docs/numbers
 consistency → fixes), every claim backed by a command and its raw output.
 No check was relaxed, no fixture/`expected_development.json`/starter file
@@ -227,10 +227,19 @@ Note on the `git_commit` field (item 2's acceptance): a file cannot contain
 the SHA-1 of the commit that contains it (self-reference / SHA-1 fixed point
 — impossible). What is recorded and verified instead: `results/checks.json`'s
 `git_commit` is the FULL hash of the commit the suite ran on, and the tag
-`a-scorer-final` sits on a commit whose ONLY delta to that commit is the
-JSON itself. Verifiable exactly:
+`a-scorer-final` sits on a commit whose delta to that commit is the JSON
+plus the closeout doc edits and the `--no-write` flag (the full gate was
+re-run on the tagged tree). Verifiable exactly:
 
 ```
 git show a-scorer-final:results/checks.json | grep git_commit   ==  git rev-parse a-scorer-final^
-git diff --stat a-scorer-final^ a-scorer-final                  ->  results/checks.json only
 ```
+
+Round-7 amendment (same session, user-approved): the results commit's
+message carried a typo — it named the recorded run commit as `4d41ed4…`
+(a stray `HEAD^` in the message template) while the authoritative value in
+`results/checks.json` is `c6166c6…`. Per the user's option (a), that one
+commit message was amended (folding in the closeout doc edits and the
+`--no-write` flag) and `a-scorer-final` was rebuilt ONCE at the amended
+commit; no other tag was touched and no history was hidden — both the
+typo and this note are recorded here.

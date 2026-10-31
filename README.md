@@ -34,6 +34,10 @@ python3 checks/run_checks.py --mutations                   # 7/7 seeded bugs cau
 python3 -m unittest discover -s tests -t .                 # 72 tests (unittest)
 ```
 
+> Note: a full `checks/run_checks.py` rewrites `results/checks.json`
+(timestamp/git_commit), so `git status` showing that one modified file
+afterwards is expected — use `--no-write` for verification runs.
+
 ## Exact reproduction commands
 
 Every result in the repository traces to one of these commands (measured on

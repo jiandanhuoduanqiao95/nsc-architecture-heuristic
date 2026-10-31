@@ -7,7 +7,11 @@ Tag map: `a-scorer-v1` marks the pre-self-review tree (fc4c49e, kept for
 history, never moved again); `a-scorer-v1.1` marks the self-review
 rectification; **`a-scorer-final` is the handoff tag** — the checks.json
 recorded in it was generated on the commit directly beneath it (see
-`git show a-scorer-final:results/checks.json | grep git_commit`).
+`git show a-scorer-final:results/checks.json | grep git_commit`);
+the tag commit itself adds the JSON plus the closeout doc edits and the
+`--no-write` flag. The tag was rebuilt ONCE (user-approved) to correct a
+typo in the results-commit message (it named 4d41ed4…; the recorded run
+commit is c6166c6…), then frozen.
 
 ## A-DoD: 12/12 done (evidence per item)
 
@@ -65,6 +69,10 @@ python3 checks/run_checks.py --only CH17          # size-control rule + 180 pair
 python3 checks/run_checks.py --only CH18          # dry-run now; strict once freeze.json exists
 python3 checks/run_checks.py --only CH18 --freeze # strict validation after you write freeze.json
 sha256sum -c docs/starter_manifest.sha256         # starter integrity
+
+A full `checks/run_checks.py` rewrites `results/checks.json`
+(timestamp/git_commit); seeing exactly that file as modified afterwards is
+expected — pass `--no-write` for pure verification runs.
 python3 tools/check_py39.py                       # stdlib-only gate
 ```
 

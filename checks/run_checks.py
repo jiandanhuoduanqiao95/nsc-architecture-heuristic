@@ -59,6 +59,10 @@ def main():
     parser.add_argument("--json", type=Path, default=None,
                         help="where to write the result JSON "
                              "(default: results/checks.json on full runs)")
+    parser.add_argument("--no-write", action="store_true",
+                        help="verification runs: do not write results/checks.json "
+                             "(it embeds timestamp/git_commit, so a full run on a "
+                             "clean tree normally makes git status dirty)")
     parser.add_argument("--mutations", action="store_true",
                         help="run the 7-mutation proof instead of the suite")
     parser.add_argument("--dry-run", action="store_true",
@@ -105,7 +109,9 @@ def main():
     print(f"{passed}/{len(results)} checks passed")
     # Only full runs write the default record; --only runs would otherwise
     # clobber results/checks.json with a partial one (explicit --json wins).
-    if args.json is not None or not only:
+    if args.no_write:
+        print("(--no-write: results/checks.json left untouched)")
+    elif args.json is not None or not only:
         out = args.json if args.json is not None else DEFAULT_JSON
         write_json(out, results, effective)
         print(f"wrote {out.relative_to(REPO) if out.is_relative_to(REPO) else out}")
