@@ -263,7 +263,7 @@ was run on the handoff tree and its output pasted verbatim (re-captured
 right before tagging `a-scorer-handoff`; the unittest output is trimmed
 to its summary lines).
 
-**Historical capture on `a-scorer-handoff` (112 tests / 66-count tool); the
+**Historical capture on `a-scorer-handoff` (108 tests / 66-count tool); the
 current state is `a-scorer-handoff.1` (112 tests / 61 cited values; the
 count tool now prints the exact Sources-row total).**
 

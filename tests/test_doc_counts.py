@@ -86,6 +86,26 @@ class DocCountGateTests(unittest.TestCase):
         failures, _fixed, _after = self.run_gate("80 tests", "80 tests", repro)
         self.assertEqual(failures, [])
 
+    def test_fix_counts_never_touches_a_historical_line(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / "docs").mkdir()
+            files = [root / "README.md", root / "docs" / "HANDOFF_A.md",
+                     root / "docs" / "reproduction.md"]
+            files[0].write_text("80 tests\n", encoding="utf-8")
+            files[1].write_text("80 tests\n", encoding="utf-8")
+            files[2].write_text("80 tests CH15 46/46\n"
+                                "Historical capture on a-scorer-handoff "
+                                "(72 tests / 66-count tool).\n", encoding="utf-8")
+            with mock.patch.object(gate, "REPO", root), \
+                    mock.patch.object(gate, "SCAN_FILES", files), \
+                    mock.patch.object(gate, "COUNT_FILES", files):
+                gate.fix_counts(80, 46)
+            repro = files[2].read_text(encoding="utf-8")
+        self.assertIn("Historical capture on a-scorer-handoff (72 tests",
+                      repro)
+        self.assertNotIn("(80 tests / 66-count tool)", repro)
+
     def test_blacklisted_counts_fail(self):
         text = "80 tests; old line says 31/31"
         failures, _fixed, _after = self.run_gate(text, "80 tests", "80 tests CH15 46/46")

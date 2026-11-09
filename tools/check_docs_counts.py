@@ -128,12 +128,20 @@ def fix_counts(n_tests, n_files):
     changed = []
     for path in COUNT_FILES:
         text = path.read_text(encoding="utf-8")
+        raw_lines = text.splitlines()
         parts = []
         for is_transcript, chunk in _segments(text):
             if not is_transcript:
-                chunk = TEST_COUNT.sub(
-                    lambda m: m.group(0).replace(_number(m.groups()), str(n_tests), 1),
-                    chunk)
+                offset = sum(len(c) + 1 for c in parts[:len(parts)])
+                for match in TEST_COUNT.finditer(chunk):
+                    line = raw_lines[offset + text.count("\n", 0, match.start(0))]
+                    if _is_historical(raw_lines, offset
+                                      + text.count("\n", 0, match.start(0)) + 1):
+                        continue
+                    chunk = chunk.replace(match.group(0),
+                                          match.group(0).replace(
+                                              _number(match.groups()), str(n_tests), 1),
+                                          1)
                 chunk = CH15_COUNT.sub(f"CH15 {n_files}/{n_files}", chunk)
             parts.append(chunk)
         new = "".join(parts)
