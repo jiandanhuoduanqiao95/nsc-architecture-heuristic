@@ -23,11 +23,11 @@ generated on the commit directly beneath the tag (`git show
 a file cannot contain the hash of the commit that contains it). The same
 holds for `a-scorer-v1.1`; `a-scorer-v1`'s copy records an earlier run
 (db83a18, its tree's checks were not re-run before tagging) — historical
-only. The same holds for `a-scorer-handoff.2`: the commit beneath it (the
-pointer/count-fix commit) adds docs/tests/tooling relative to the recorded
-commit e340011 (checks/ logic unchanged; 18/18 re-run on the `.1` and `.2`
-trees), and `a-scorer-handoff.2` is A's snapshot, **not** the team milestone
-tag.
+only. The same holds for `a-scorer-handoff.2`: its parent 65d51217 (the
+pointer/count-fix commit) is the recorded commit, and this tag adds only
+`results/checks.json`; the earlier `.1` tree's larger delta to e340011
+(docs/tests/tooling) is historical. `a-scorer-handoff.2` is A's snapshot,
+**not** the team milestone tag.
 
 ## A-DoD: 12/12 done (evidence per item)
 
