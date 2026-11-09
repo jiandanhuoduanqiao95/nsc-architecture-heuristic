@@ -45,6 +45,25 @@ class DocCountGateTests(unittest.TestCase):
         failures, _fixed, _after = self.run_gate(text, text, text + " CH15 46/46")
         self.assertEqual(failures, [])
 
+    def test_n_ok_form_is_a_test_count(self):
+        failures, _fixed, after = self.run_gate("Ran 80 tests | 72 OK |", "80 tests",
+                                                "80 tests CH15 46/46")
+        self.assertTrue(any("stale test count 72" in f for f in failures))
+        self.assertEqual(after, [])
+
+    def test_shell_transcripts_are_verbatim(self):
+        transcript = "```\n$ python3 x.py\nlive counts: 72 tests, CH15 44/44\n```\n"
+        repro = "80 tests CH15 46/46\n" + transcript
+        failures, _fixed, _after = self.run_gate("80 tests", "80 tests", repro)
+        self.assertEqual(failures, [])  # pasted output is exempt from the check
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "reproduction.md"
+            path.write_text(repro, encoding="utf-8")
+            with mock.patch.object(gate, "REPO", Path(tmp)), \
+                    mock.patch.object(gate, "COUNT_FILES", [path]):
+                gate.fix_counts(80, 46)
+            self.assertIn("live counts: 72 tests, CH15 44/44", path.read_text())
+
     def test_blacklisted_counts_fail(self):
         text = "80 tests; old line says 31/31"
         failures, _fixed, _after = self.run_gate(text, "80 tests", "80 tests CH15 46/46")

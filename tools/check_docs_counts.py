@@ -32,7 +32,7 @@ sys.path.insert(0, str(REPO))
 from checks.py39_rules import iter_repo_py_files  # noqa: E402
 
 BLACKLIST = re.compile(r"\b51 tests\b|\b51 unit\b|\b51 OK\b|\b31/31\b")
-TEST_COUNT = re.compile(r"\b(\d+) (?:stdlib )?(?:unit )?tests\b")
+TEST_COUNT = re.compile(r"\b(\d+) (?:stdlib )?(?:unit )?tests\b|\b(\d+) OK\b")
 CH15_COUNT = re.compile(r"\bCH15 (\d+)/(\d+)\b")
 SCAN_FILES = [REPO / "README.md"] + sorted((REPO / "docs").glob("*.md"))
 COUNT_FILES = [REPO / "README.md", REPO / "docs" / "HANDOFF_A.md",
@@ -49,6 +49,32 @@ def live_py_file_count():
     return sum(1 for _ in iter_repo_py_files())
 
 
+TRANSCRIPT = re.compile(r"^```[^\n]*\n\$ .*?^```", re.M | re.S)
+
+
+def _segments(text):
+    """Split into (is_transcript, chunk): fenced blocks whose first line starts
+    with '$ ' are pasted shell transcripts — exempt from checking and --fix so
+    they stay verbatim; every other region (incl. instruction blocks) counts."""
+    out, pos = [], 0
+    for match in TRANSCRIPT.finditer(text):
+        out.append((False, text[pos:match.start()]))
+        out.append((True, match.group(0)))
+        pos = match.end()
+    out.append((False, text[pos:]))
+    return out
+
+
+def _checked_text(text):
+    """Text with transcripts blanked (same length/newlines, so line numbers hold)."""
+    return "".join(re.sub(r"[^\n]", " ", chunk) if is_t else chunk
+                   for is_t, chunk in _segments(text))
+
+
+def _number(groups):
+    return next(g for g in groups if g is not None)
+
+
 def count_failures(n_tests, n_files):
     failures = []
     for path in SCAN_FILES:
@@ -57,12 +83,12 @@ def count_failures(n_tests, n_files):
             failures.append(f"{path.relative_to(REPO)}: stale count "
                             f"{match.group(0)!r}")
     for path in COUNT_FILES:
-        text = path.read_text(encoding="utf-8")
+        text = _checked_text(path.read_text(encoding="utf-8"))
         rel = path.relative_to(REPO)
         for number, line in _matches_with_lines(TEST_COUNT, text):
-            if int(number[0]) != n_tests:
+            if int(_number(number)) != n_tests:
                 failures.append(f"{rel}:{line}: stale test count "
-                                f"{number[0]} (live {n_tests})")
+                                f"{_number(number)} (live {n_tests})")
         for number, line in _matches_with_lines(CH15_COUNT, text):
             if (int(number[0]), int(number[1])) != (n_files, n_files):
                 failures.append(f"{rel}:{line}: stale CH15 count "
@@ -70,7 +96,7 @@ def count_failures(n_tests, n_files):
         if f"{n_tests} tests" not in text:
             failures.append(f"{rel}: does not state the current test count "
                             f"({n_tests} tests)")
-    repro = (REPO / "docs" / "reproduction.md").read_text(encoding="utf-8")
+    repro = _checked_text((REPO / "docs" / "reproduction.md").read_text(encoding="utf-8"))
     if f"CH15 {n_files}/{n_files}" not in repro:
         failures.append(f"docs/reproduction.md: does not state the current "
                         f"CH15 count (CH15 {n_files}/{n_files})")
@@ -87,9 +113,15 @@ def fix_counts(n_tests, n_files):
     changed = []
     for path in COUNT_FILES:
         text = path.read_text(encoding="utf-8")
-        new = TEST_COUNT.sub(lambda m: m.group(0).replace(m.group(1), str(n_tests), 1),
-                             text)
-        new = CH15_COUNT.sub(f"CH15 {n_files}/{n_files}", new)
+        parts = []
+        for is_transcript, chunk in _segments(text):
+            if not is_transcript:
+                chunk = TEST_COUNT.sub(
+                    lambda m: m.group(0).replace(_number(m.groups()), str(n_tests), 1),
+                    chunk)
+                chunk = CH15_COUNT.sub(f"CH15 {n_files}/{n_files}", chunk)
+            parts.append(chunk)
+        new = "".join(parts)
         if new != text:
             path.write_text(new, encoding="utf-8")
             changed.append(str(path.relative_to(REPO)))
