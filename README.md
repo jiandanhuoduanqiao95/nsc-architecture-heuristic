@@ -37,7 +37,7 @@ python3 check_starter.py                                   # official self-check
 python3 evaluate.py --split development                    # baseline + our scorer
 python3 checks/run_checks.py                               # 18/18 checks
 python3 checks/run_checks.py --mutations                   # 7/7 seeded bugs caught
-python3 -m unittest discover -s tests -t .                 # 109 tests (unittest)
+python3 -m unittest discover -s tests -t .                 # 112 tests (unittest)
 ```
 
 > Note: a full `checks/run_checks.py` rewrites `results/checks.json`
@@ -54,7 +54,7 @@ the dev machine; times are wall-clock):
 | `python3 check_starter.py` | `PASS: MP identities/convergence, ...` + toy `121.820169804` / `96.957958136 vs 85.772296570` | 0.27 s |
 | `python3 evaluate.py --split development --output results/dev_with_scorer.json` | 6-row ranking table; `100 development architectures; 8 budget/k combinations` | 0.44 s |
 | `python3 tools/compare_expected.py results/dev_with_scorer.json expected_development.json` | `PARITY OK` on ≤3.10; `PARITY OK (D0-1: 1 tolerated ULP at …)` on ≥3.11; `--strict` enforces pure bitwise | <0.1 s |
-| `python3 -m unittest discover -s tests -t .` | `Ran 109 tests ... OK` | 1.8 s |
+| `python3 -m unittest discover -s tests -t .` | `Ran 112 tests ... OK` | 1.8 s |
 | `python3 checks/run_checks.py` | `18/18 checks passed`, writes `results/checks.json` | 1.8 s |
 | `python3 checks/run_checks.py --mutations` | `7/7 mutations caught` | 9.0 s |
 | `python3 tools/reorder_pairs.py --write results/reorder_pairs.csv` | 13-row CSV + `docs/reorder_table.md`; `pairs=9845, violations=0` | 1.4 s |
@@ -67,7 +67,7 @@ the dev machine; times are wall-clock):
 | `python3 tools/make_variants.py` / `--verify` | 5 grid variants / `VARIANTS OK` | 0.2 s |
 | `python3 tools/make_position_variants.py` / `--verify` | 5 M3 variants / `M3 VARIANTS OK` | 0.5 s |
 | `python3 tools/selection_failures.py --self-test` | `SELECTION FAILURES OK` | 0.1 s |
-| `python3 tools/make_report_pack.py --check` | `REPORT PACK OK (… 66 cited values …)` | 0.1 s |
+| `python3 tools/make_report_pack.py --check` | `REPORT PACK OK (… 61 cited values …)` | 0.1 s |
 | `python3 tools/make_figures.py --check` | `FIGURES OK` | 0.1 s |
 | `python3 tools/d0_1_diagnose.py` | three-path D0-1 evidence, exit 0 | 0.1 s |
 | `python3 tools/check_docs_counts.py` | `DOC COUNTS OK` | 0.1 s |
@@ -84,7 +84,7 @@ nsc.py evaluate.py check_starter.py expected_development.json  # starter (read-o
 student_score.py        # our scorer: ALPHA + score() + ablation()  (thin wrapper)
 ctxnsc/                 # core library: specs, mp, terms, prefix, score, breakdown, adapter
 checks/                 # 18-check suite + 7-mutation proof + CLI (+ fixtures under tests/fixtures)
-tests/                  # 109 stdlib unit tests
+tests/                  # 112 stdlib unit tests
 tools/                  # audit, breakdown, diagnostics, alpha selector, C3 probe,
                         #   1,000-trial selection reference, variant generators,
                         #   failure-case extractor, report pack, figures, gates

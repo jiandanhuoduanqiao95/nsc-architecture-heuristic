@@ -1,6 +1,6 @@
 # Role A — 16-item cross-review checklist (A8.1)
 
-Status legend: **PASS** = verified on tag `a-scorer-handoff`; **READY** = A's tool
+Status legend: **PASS** = verified on tag `a-scorer-handoff.1`; **READY** = A's tool
 check exists and passes, the B/C artifact it audits does not exist yet (run
 the listed command when it does); **PENDING** = needs the report/evaluator
 that B/C will produce.
@@ -17,12 +17,12 @@ that B/C will produce.
 | 8 | report's main protocol is 1,000; 200 only as prefix appendix (T1-7/T2-4) | PENDING | when the report draft exists, check the main tables say `trials: 1000` and the 200-run appears only as harness consistency |
 | 9 | scorer reads no labels, no ID lookups (—) | PASS | CH14 (AST scan + runtime guard, 0 occurrences) |
 | 10 | `evaluate.py` / `nsc.py` / `check_starter.py` / `expected_development.json` / `data/` unmodified (T1-1) | PASS | `git diff --stat starter-import -- nsc.py evaluate.py check_starter.py expected_development.json data` = empty; CH01 15/15 byte-exact |
-| 11 | every report number traces to `results/*.json` (—) | PASS (A's material) / PENDING (C's draft) | `docs/report_pack.md`: 66 values, each with a source id; `tools/make_report_pack.py --check` + `tests/test_report_pack.py` (42 re-resolved independently); spot-check C's draft against the pack's Sources table |
+| 11 | every report number traces to `results/*.json` (—) | PASS (A's material) / PENDING (C's draft) | `docs/report_pack.md`: 61 values, each with a source id; `tools/make_report_pack.py --check` + `tests/test_report_pack.py` (61 re-resolved independently); spot-check C's draft against the pack's Sources table |
 | 12 | after freeze: `ALPHA`/`beta_star` equal the two dev-grid argmaxes (T1-6/T2-1) | READY | `python3 checks/run_checks.py --only CH18 --freeze` after C writes `freeze.json` + B writes `results/dev_grid_*.json` |
 | 13 | M3 vs M2: identical grid/rule/tie-break (T1-4/T2-1) | READY | both grids come from the same `tools/select_alpha.py` (`--method cumulative|position`, same DEFAULT_GRID and C4 rule); diff the two `results/dev_grid_*.json`; CH18 validates `beta_star` == position-grid argmax |
 | 14 | C3 has its own table; `Δc_l` identity holds (T2-3) | PASS | `results/normalization_probe.csv` + `tools/normalization_probe.py` (identity worst rel 1.37e-16 in the stable form; literal-form caveat in `docs/mechanism.md` §9) |
 | 15 | ≥3 concrete selection-failure cases (who was chosen / who was best / gap / reason) (T1-8/T2-6) | READY (tool) / PENDING (B's data, C's text) | `tools/selection_failures.py` (`--self-test` → `SELECTION FAILURES OK`) turns B's `results/selection_1000.json` into who/best/gap/why rows + ≥3 candidate cases; A reviews specificity in C's report |
 | 16 | 1,000-trial variance vs training-seed uncertainty stated separately (T1-7/T2-7) | PASS (draft) / PENDING (report) | `docs/mechanism.md` §10 carries the two-sentence split; final wording check on C's report |
 
-**Summary at `a-scorer-handoff`** (16 rows): PASS 5 (rows 3, 6, 9, 10, 14) · PASS on A's side with a B/C follow-up 7 (rows 1, 2, 4, 5, 7, 11, 16) · READY 2 (rows 12, 13) · READY tool, data pending 1 (row 15) · PENDING 1 (row 8) — every
+**Summary at `a-scorer-handoff.1`** (16 rows): PASS 5 (rows 3, 6, 9, 10, 14) · PASS on A's side with a B/C follow-up 7 (rows 1, 2, 4, 5, 7, 11, 16) · READY 2 (rows 12, 13) · READY tool, data pending 1 (row 15) · PENDING 1 (row 8) — every
 non-PASS row has a named owner and a runnable command; nothing is blocked on role A.

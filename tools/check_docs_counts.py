@@ -31,7 +31,8 @@ sys.path.insert(0, str(REPO))
 
 from checks.py39_rules import iter_repo_py_files  # noqa: E402
 
-BLACKLIST = re.compile(r"\b51 tests\b|\b51 unit\b|\b51 OK\b|\b31/31\b")
+BLACKLIST = re.compile(r"\b51 tests\b|\b51 unit\b|\b51 OK\b|\b31/31\b"
+                       r"|\b66 cited\b|\b42 re-resolved\b|\b108 tests\b")
 TEST_COUNT = re.compile(r"\b(\d+) (?:stdlib )?(?:unit )?tests\b|\b(\d+) OK\b")
 CH15_COUNT = re.compile(r"\bCH15 (\d+)/(\d+)\b")
 SCAN_FILES = [REPO / "README.md"] + sorted((REPO / "docs").glob("*.md"))
@@ -78,19 +79,27 @@ def _number(groups):
 def count_failures(n_tests, n_files):
     failures = []
     for path in SCAN_FILES:
-        text = path.read_text(encoding="utf-8")
+        text = _checked_text(path.read_text(encoding="utf-8"))
         for match in BLACKLIST.finditer(text):
+            line_start = text.rfind("\n", 0, match.start()) + 1
+            line_end = text.find("\n", match.end())
+            line = text[line_start: line_end if line_end != -1 else len(text)]
+            if "historical" in line.lower():
+                continue  # pasted/historical captures carry an explicit marker
             failures.append(f"{path.relative_to(REPO)}: stale count "
                             f"{match.group(0)!r}")
     for path in COUNT_FILES:
         text = _checked_text(path.read_text(encoding="utf-8"))
         rel = path.relative_to(REPO)
+        raw_lines = path.read_text(encoding="utf-8").splitlines()
         for number, line in _matches_with_lines(TEST_COUNT, text):
-            if int(_number(number)) != n_tests:
+            if int(_number(number)) != n_tests and \
+                    not _is_historical(raw_lines, line):
                 failures.append(f"{rel}:{line}: stale test count "
                                 f"{_number(number)} (live {n_tests})")
         for number, line in _matches_with_lines(CH15_COUNT, text):
-            if (int(number[0]), int(number[1])) != (n_files, n_files):
+            if (int(number[0]), int(number[1])) != (n_files, n_files) and \
+                    not _is_historical(raw_lines, line):
                 failures.append(f"{rel}:{line}: stale CH15 count "
                                 f"{number[0]}/{number[1]} (live {n_files}/{n_files})")
         if f"{n_tests} tests" not in text:
@@ -101,6 +110,12 @@ def count_failures(n_tests, n_files):
         failures.append(f"docs/reproduction.md: does not state the current "
                         f"CH15 count (CH15 {n_files}/{n_files})")
     return failures
+
+
+def _is_historical(raw_lines, line_number):
+    """A stale count on a line explicitly marked 'historical' is allowed (the
+    annotated section-12 capture in docs/reproduction.md)."""
+    return "historical" in raw_lines[line_number - 1].lower()
 
 
 def _matches_with_lines(pattern, text):

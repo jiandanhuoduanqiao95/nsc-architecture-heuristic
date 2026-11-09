@@ -1,7 +1,7 @@
-# HANDOFF — Role A → roles B and C (tag `a-scorer-handoff`, 2026-11-09)
+# HANDOFF — Role A → roles B and C (tag `a-scorer-handoff.1`, 2026-11-10)
 
-Role A's deliverable is on tag **`a-scorer-handoff`** (the current handoff
-snapshot). This file is the entry point: what is done, how to use it, what
+Role A's deliverable is on tag **`a-scorer-handoff.1`** (the current handoff
+snapshot, English-primary closeout). This file is the entry point: what is done, how to use it, what
 B and C still must do, and what is deliberately **not** A's job. The
 step-by-step commands for the milestone are in `docs/milestone_runbook.md`.
 
@@ -13,7 +13,8 @@ Tag map (no tag is ever moved again):
 | `a-scorer-v1` (fc4c49e) | historical: pre-self-review tree |
 | `a-scorer-v1.1` (eb42979) | historical: self-review rectification (it was re-pointed once within its own session; recorded in `docs/SELF_REVIEW_A.md`) |
 | `a-scorer-final` (e183692) | historical: closeout tree; it was rebuilt ONCE (user-approved) to fix a typo in its results-commit message (it named 4d41ed4…; the recorded run commit is c6166c6…) |
-| **`a-scorer-handoff`** | **current**: closeout + B/C enablement tools (this file's state) |
+| **`a-scorer-handoff.1`** | **current**: English-primary closeout (this file's state) |
+| `a-scorer-handoff` (e340011) | historical: post-P3 closeout with the B/C enablement tools, pre-English |
 | `a-scorer-handoff.1` | English-primary closeout: submission-language rule, English 4-page skeleton (`docs/report_template_en.md`), CJK confined to `docs/zh/`, report-pack citation coverage 61/61 (this file's commit) |
 
 For `a-scorer-final` and `a-scorer-handoff`, `results/checks.json` was
@@ -22,7 +23,10 @@ generated on the commit directly beneath the tag (`git show
 a file cannot contain the hash of the commit that contains it). The same
 holds for `a-scorer-v1.1`; `a-scorer-v1`'s copy records an earlier run
 (db83a18, its tree's checks were not re-run before tagging) — historical
-only. `a-scorer-handoff` is A's snapshot, **not** the team milestone tag.
+only. The same holds for `a-scorer-handoff.1` itself: its tree adds
+docs/tests/tooling relative to the recorded commit e340011 (checks/ logic
+unchanged; 18/18 re-run on the `.1` tree), and `a-scorer-handoff.1` is A's
+snapshot, **not** the team milestone tag.
 
 ## A-DoD: 12/12 done (evidence per item)
 
@@ -30,7 +34,7 @@ only. `a-scorer-handoff` is A's snapshot, **not** the team milestone tag.
 |---|---|---|
 | 1 | `check_starter.py` PASS, output = plan §1.7 | `docs/reproduction.md` §2 |
 | 2 | dev evaluation matches `expected_development.json` field-by-field | CH03 (3/3) + `docs/reproduction.md` §5 D0-1 (one 1-ULP field on Python ≥3.11, group-approved rule) |
-| 3 | unit tests | `Ran 109 tests ... OK` |
+| 3 | unit tests | `Ran 112 tests ... OK` |
 | 4 | `checks/run_checks.py` | `18/18 checks passed`, `results/checks.json` |
 | 5 | `checks/run_checks.py --mutations` | `7/7 mutations caught` |
 | 6 | α=0 exact recovery | CH05: 200/200 bitwise |
@@ -42,7 +46,7 @@ only. `a-scorer-handoff` is A's snapshot, **not** the team milestone tag.
 | 12 | hygiene | `student_score.py` has exactly ALPHA/score/ablation; starter files byte-identical (CH01, manifest); docs complete; tags exist; cold clone green |
 
 Cold clone (`git clone` → fresh dir): `check_starter.py` PASS,
-`checks/run_checks.py` **18/18**, `--mutations` **7/7**, 109 tests OK.
+`checks/run_checks.py` **18/18**, `--mutations` **7/7**, 112 tests OK.
 
 ## Handoff additions (2026-11-09) — so B/C can run without A
 
@@ -149,7 +153,7 @@ changes to `ctxnsc/` require A's sign-off per `AGENTS.md`.
 ## Group message template
 
 ```
-@B @C Role A handoff complete: tag a-scorer-handoff (historical tags
+@B @C Role A handoff complete: tag a-scorer-handoff.1 (historical tags
 a-scorer-v1 / v1.1 / final are frozen and never moved).
 Start with docs/milestone_runbook.md. B runs B1-B6: the alpha grid via
 variants/dev_alpha_*, the beta grid via variants/m3_beta_*, alpha*/beta* via

@@ -64,6 +64,28 @@ class DocCountGateTests(unittest.TestCase):
                 gate.fix_counts(80, 46)
             self.assertIn("live counts: 72 tests, CH15 44/44", path.read_text())
 
+    def test_blacklist_patterns_include_handoff_round(self):
+        # 66 cited / 42 re-resolved / 108 tests are stale once .1 is current
+        for stale in ("66 cited values", "42 re-resolved independently", "108 tests"):
+            failures, _fixed, _after = self.run_gate(
+                "80 tests\n" + stale, "80 tests", "80 tests CH15 46/46")
+            self.assertTrue(any("stale count" in f for f in failures), stale)
+
+    def test_historical_marker_on_the_same_line_is_allowed(self):
+        note = "Historical capture on a-scorer-handoff (108 tests / 66-count tool)."
+        failures, _fixed, _after = self.run_gate(
+            "80 tests\n61 cited values", "80 tests",
+            "80 tests CH15 46/46\n" + note)
+        self.assertEqual(failures, [])
+
+    def test_blacklist_inside_a_shell_transcript_is_exempt(self):
+        transcript = ("```\n$ python3 tools/make_report_pack.py --check\n"
+                      "REPORT PACK OK (66 cited values)\n"
+                      "live counts: 108 tests, CH15 44/44\n```\n")
+        repro = "80 tests CH15 46/46\n61 cited values\n" + transcript
+        failures, _fixed, _after = self.run_gate("80 tests", "80 tests", repro)
+        self.assertEqual(failures, [])
+
     def test_blacklisted_counts_fail(self):
         text = "80 tests; old line says 31/31"
         failures, _fixed, _after = self.run_gate(text, "80 tests", "80 tests CH15 46/46")

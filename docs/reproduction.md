@@ -143,7 +143,7 @@ import `student_score`. No mismatches with the plan were found beyond D0-1.
 ```
 python3 check_starter.py       -> PASS (4 lines, identical to §2)
 python3 checks/run_checks.py   -> 18/18 checks passed (1.80 s)
-python3 -m unittest discover -s tests -t . -> OK (109 tests)
+python3 -m unittest discover -s tests -t . -> OK (112 tests)
 python3 checks/run_checks.py --mutations -> 7/7 mutations caught
 ```
 
@@ -163,7 +163,7 @@ quantities; the A1 supplementary table quotes both scopes.
 
 | Command | Result |
 |---|---|
-| `python3 -m unittest discover -s tests -t .` | `Ran 109 tests ... OK` (1.8 s; suite size history: 51 at A2, 59 after self-review SR-6, 72 at a-scorer-final, then the handoff-tool tests) |
+| `python3 -m unittest discover -s tests -t .` | `Ran 112 tests ... OK` (1.8 s; suite size history: 51 at A2, 59 after self-review SR-6, 72 at a-scorer-final, then the handoff-tool tests) |
 | `python3 tools/show_breakdown.py config_0_j0 0` | 5 layers, `S0=589.868164872 S(0)=589.868164872`, `exact: S(0) == original_nsc -> True` |
 | `python3 tools/show_breakdown.py config_0_j0 0.5` | per-layer A/F/c/factor equal to the plan's hand-check to the printed digit; `S(0.5)=517.201199027 sumA=126.526016726 sumA+F1=216.446042162` |
 | `python3 tools/select_alpha.py --self-test` | `TIE-BREAK OK` + `SELECTION OK` |
@@ -250,7 +250,7 @@ note). Toy row reproduces §1.7: S(0.5) 113.8892745548438 vs 116.244184056…
 | `python3 tools/make_variants.py --verify` | `VARIANTS OK`: module scores bitwise equal to `ctxnsc.score_config`; the JSON `student` ranking block equals the recomputation from direct scores (canonical/ranks/tau-b conventions) |
 | `python3 tools/selection_ext.py --self-test` | `PARITY OK` + `PREFIX OK` + `TRIALS OK` (0.07 s; 20 randomized parity cases vs `evaluate.select_trials`; 1,000-trial prefix equals 200-trial run bitwise) |
 | `python3 checks/run_checks.py` | still 18/18 with the rewired scorer |
-| `python3 -m unittest discover -s tests -t .` | 109 OK |
+| `python3 -m unittest discover -s tests -t .` | 112 OK |
 
 `REPEATS=200` in `evaluate.py` untouched; the 1,000-trial main protocol lives
 in `tools/selection_ext.py` for B's evaluator (all methods, same pools, same
@@ -262,6 +262,10 @@ New tools for roles B/C (P0-1 … P2 of the handoff task); each command below
 was run on the handoff tree and its output pasted verbatim (re-captured
 right before tagging `a-scorer-handoff`; the unittest output is trimmed
 to its summary lines).
+
+**Historical capture on `a-scorer-handoff` (112 tests / 66-count tool); the
+current state is `a-scorer-handoff.1` (112 tests / 61 cited values; the
+count tool now prints the exact Sources-row total).**
 
 ```
 $ python3 tools/selection_failures.py --self-test    # exit 0, 0.05 s

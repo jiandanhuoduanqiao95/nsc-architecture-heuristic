@@ -276,6 +276,6 @@ Unchanged by design: `results/reorder_pairs.csv` and
 
 | id | sev | item | note |
 |---|---|---|---|
-| R9-1 | P2 | `tools/make_report_pack.py --check` printed "66 cited values" — an overcount: the counter matched Section 4 body-table lines starting with `\| S` in addition to the Sources rows (the real count is 61) | the counter now counts only Sources-table rows; `tests/test_report_pack.py` asserts ≥ 60 and in fact covers 61/61 |
+| R9-1 | P2 | `tools/make_report_pack.py --check` printed an overcounted citation total (66; the counter matched Section 4 body-table lines starting with `\| S` in addition to the Sources rows; the real count is 61) | the counter now counts only Sources-table rows; `tests/test_report_pack.py` asserts ≥ 60 and in fact covers 61/61 |
 | R9-2 | P2 | Chinese content outside `docs/zh/`: the HANDOFF group template, checklist row 15's phrase, and 7 characters in SELF_REVIEW | HANDOFF template translated to English; the Chinese original moved to `docs/zh/group_message_zh.md` (non-submitted reference); checklist row 15 now reads "who was chosen / who was best / gap / reason"; the 7 characters reworded; `grep -rP '[\x{4e00}-\x{9fff}]'` now matches only `docs/zh/` |
 | R9-3 | — | new `docs/report_template_en.md` (English 4-page skeleton, per-section budgets, three [[B: …]] slots, numbers only via Sources ids) and the runbook's "Submission language and format" section | milestone draft + final report are English PDF; `docs/zh/` copies are never submitted |

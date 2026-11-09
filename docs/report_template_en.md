@@ -12,8 +12,8 @@
 > introduce numbers from anywhere else; if an artifact changes, re-render the
 > pack and re-check the ids. `[[B: …]]` slots are role B's pending results.
 
-Page budget (≈ 4.0 pages; references excluded, three inline figures ≈ 0.8
-pages included in the section budgets):
+Page budget (≈ 4.0 pages; references excluded, three inline figures ≈ 0.45
+pages total, inside the section budgets):
 
 | section | words | pages |
 |---|---:|---|
