@@ -1,19 +1,29 @@
 #!/usr/bin/env python3
-"""Docs-vs-reality count gate (self-review SR-3 follow-up).
+"""Docs-vs-reality count gate (self-review SR-3 follow-up, strengthened at handoff).
 
 Fails when the human-facing docs drift from the live numbers:
 
 1. stale-count blacklist: ``51 tests`` / ``51 unit`` / ``51 OK`` / ``31/31``
    must not appear in README.md or docs/*.md (they were the pre-self-review
    counts);
-2. current-count presence: the LIVE unittest test count and the LIVE .py
-   file count (CH15's n) must appear in README.md, docs/HANDOFF_A.md and
-   docs/reproduction.md, and reproduction.md must carry ``CH15 <n>/<n>``.
+2. current-state docs (README.md, docs/HANDOFF_A.md, docs/reproduction.md):
+   EVERY ``<n> tests`` / ``<n> unit tests`` / ``<n> stdlib unit tests``
+   mention must equal the LIVE unittest count, and every ``CH15 <a>/<b>``
+   mention must equal the LIVE .py file count (CH15's n); historical notes
+   in these files must be worded without those patterns;
+3. current-count presence: the live test count must appear in all three
+   files and ``CH15 <n>/<n>`` in reproduction.md.
+
+The live test count comes from unittest discovery itself (identical to the
+``Ran N tests`` line), not from grepping source text.
 
 Run from anywhere: ``python3 tools/check_docs_counts.py``
+``--fix`` rewrites only the live-count mentions (rule 2 patterns) in the three
+current-state docs to the live values, then re-checks.
 """
 import re
 import sys
+import unittest
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[1]
@@ -22,24 +32,25 @@ sys.path.insert(0, str(REPO))
 from checks.py39_rules import iter_repo_py_files  # noqa: E402
 
 BLACKLIST = re.compile(r"\b51 tests\b|\b51 unit\b|\b51 OK\b|\b31/31\b")
+TEST_COUNT = re.compile(r"\b(\d+) (?:stdlib )?(?:unit )?tests\b")
+CH15_COUNT = re.compile(r"\bCH15 (\d+)/(\d+)\b")
 SCAN_FILES = [REPO / "README.md"] + sorted((REPO / "docs").glob("*.md"))
 COUNT_FILES = [REPO / "README.md", REPO / "docs" / "HANDOFF_A.md",
                REPO / "docs" / "reproduction.md"]
 
 
 def live_test_count():
-    return sum(Path(p).read_text(encoding="utf-8").count("    def test_")
-               for p in sorted((REPO / "tests").glob("test_*.py")))
+    suite = unittest.defaultTestLoader.discover(
+        start_dir=str(REPO / "tests"), top_level_dir=str(REPO))
+    return suite.countTestCases()
 
 
 def live_py_file_count():
     return sum(1 for _ in iter_repo_py_files())
 
 
-def main():
+def count_failures(n_tests, n_files):
     failures = []
-    n_tests = live_test_count()
-    n_files = live_py_file_count()
     for path in SCAN_FILES:
         text = path.read_text(encoding="utf-8")
         for match in BLACKLIST.finditer(text):
@@ -47,13 +58,51 @@ def main():
                             f"{match.group(0)!r}")
     for path in COUNT_FILES:
         text = path.read_text(encoding="utf-8")
+        rel = path.relative_to(REPO)
+        for number, line in _matches_with_lines(TEST_COUNT, text):
+            if int(number[0]) != n_tests:
+                failures.append(f"{rel}:{line}: stale test count "
+                                f"{number[0]} (live {n_tests})")
+        for number, line in _matches_with_lines(CH15_COUNT, text):
+            if (int(number[0]), int(number[1])) != (n_files, n_files):
+                failures.append(f"{rel}:{line}: stale CH15 count "
+                                f"{number[0]}/{number[1]} (live {n_files}/{n_files})")
         if f"{n_tests} tests" not in text:
-            failures.append(f"{path.relative_to(REPO)}: does not state the "
-                            f"current test count ({n_tests} tests)")
+            failures.append(f"{rel}: does not state the current test count "
+                            f"({n_tests} tests)")
     repro = (REPO / "docs" / "reproduction.md").read_text(encoding="utf-8")
     if f"CH15 {n_files}/{n_files}" not in repro:
         failures.append(f"docs/reproduction.md: does not state the current "
                         f"CH15 count (CH15 {n_files}/{n_files})")
+    return failures
+
+
+def _matches_with_lines(pattern, text):
+    for match in pattern.finditer(text):
+        yield match.groups(), text.count("\n", 0, match.start()) + 1
+
+
+def fix_counts(n_tests, n_files):
+    """Rewrite every live-count mention in the current-state docs (--fix)."""
+    changed = []
+    for path in COUNT_FILES:
+        text = path.read_text(encoding="utf-8")
+        new = TEST_COUNT.sub(lambda m: m.group(0).replace(m.group(1), str(n_tests), 1),
+                             text)
+        new = CH15_COUNT.sub(f"CH15 {n_files}/{n_files}", new)
+        if new != text:
+            path.write_text(new, encoding="utf-8")
+            changed.append(str(path.relative_to(REPO)))
+    return changed
+
+
+def main():
+    n_tests = live_test_count()
+    n_files = live_py_file_count()
+    if "--fix" in sys.argv[1:]:
+        changed = fix_counts(n_tests, n_files)
+        print(f"--fix: rewrote live counts in {changed or 'no files'}")
+    failures = count_failures(n_tests, n_files)
     print(f"live counts: {n_tests} tests, CH15 {n_files}/{n_files} .py files")
     if failures:
         for line in failures:

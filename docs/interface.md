@@ -70,6 +70,57 @@ weighting, so M3 isolates "layer index" from M2's "accumulated capacity".
 - **`ablation(config)` always returns `original_nsc(config)`**, independent of
   ALPHA — that is the zero-strength ablation the harness expects.
 
+## Selection export contract (B → `tools/selection_failures.py`)
+
+B's six-method evaluator must export **`results/selection_1000.json`** in
+this shape (one entry per method × cap × k; same pools for every method):
+
+```json
+{
+  "split": "development",
+  "trials": 1000,
+  "entries": [
+    {"method": "original_nsc", "cap": 10000000, "k": 1,
+     "pool": ["config_id", "..."], "chosen": ["config_id", "..."],
+     "chosen_ppl": [37.6], "best_ppl": 37.6, "oracle_ppl": 37.6, "regret": 0.0}
+  ]
+}
+```
+
+Required, per entry:
+
+| field | meaning (checked by the tool) |
+|---|---|
+| `method` | canonical name — `original_nsc`, `ablation`, `position_example`, `reported_parameters`, `reference_flops`, `m2_alpha_<a>`, `m3_beta_<b>` — or any name with scores supplied in the optional top-level `scores` map; `random` entries are skipped |
+| `cap`, `k` | positive integers (caps 10/20/30/50M, k ∈ {1, 3}) |
+| `pool` | config ids with `resources.total <= cap` within the split, i.e. exactly the harness pool (any other set is rejected) |
+| `chosen` | the **representative** choice = trial 1 of the harness tie-handling: `tools.selection_ext.representative_choice(pool, canonical_scores, k, seed=202627+cap+k)` (shuffle, then stable sort by score, take k) |
+| `chosen_ppl` | the split's labels for `chosen`, same order |
+| `best_ppl` | `min(chosen_ppl)` |
+| `oracle_ppl` | lowest PPL in `pool` |
+| `regret` | `best_ppl - oracle_ppl` |
+
+Optional: per-entry `mean_best_ppl` / `mean_regret` / `sd_best_ppl` from
+`select_trials_ext(..., repeats=1000)` (the tool notes entries whose 1,000-trial
+mean differs from the representative — a sign of score ties) and `seed`;
+top-level `scores: {method: {config_id: score}}` for methods without a
+canonical name. Scores are compared after `evaluate.canonical`.
+
+```sh
+python3 tools/selection_failures.py --selection results/selection_1000.json \
+    --split development --out-csv results/selection_failures.csv \
+    --out-md docs/selection_failures.md
+```
+
+Output: `results/selection_failures.csv` (13 columns: `method, cap, k,
+chosen_ids, chosen_ppl, best_id, best_ppl, gap, reason_tags,
+score_rank_of_best, size_ratio_chosen_vs_best, depth_delta, width_delta`; one
+row per failure, where `best_*` is the pool optimum and `gap = best PPL among
+chosen - best_ppl`) and `docs/selection_failures.md` (failure table, tag
+legend, ≥3 candidate cases for the report). `--split final` is refused unless
+`--allow-final` is also given (B, after the freeze tag). Format preview from
+the synthetic fixture: `docs/examples/selection_failures_example.{csv,md}`.
+
 ## Copy-paste example
 
 ```python

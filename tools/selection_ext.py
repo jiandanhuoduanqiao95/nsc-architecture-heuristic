@@ -57,6 +57,26 @@ def select_trials_ext(pool, scores, k, ppl, seed, repeats=1000,
     return result
 
 
+def representative_choice(pool, scores, k, seed):
+    """The trial-1 choice of ``select_trials_ext`` (same RNG stream).
+
+    This is the single "representative" chosen set that role B exports per
+    (method, cap, k) in ``results/selection_1000.json`` (contract in
+    docs/interface.md) and that ``tools/selection_failures.py`` analyses:
+    a fresh ``random.Random(seed)``, shuffle the pool, stable-sort by score
+    descending, keep the first k. ``pool`` items may be indices or config ids
+    (``scores`` is then a list or a dict). For deterministic scores without
+    ties at the k-th boundary every trial makes this same choice.
+    """
+    rng = random.Random(seed)
+    if scores is None:
+        return rng.sample(pool, k)
+    order = list(pool)
+    rng.shuffle(order)
+    order.sort(key=lambda i: scores[i], reverse=True)
+    return order[:k]
+
+
 def self_test() -> int:
     """PARITY / PREFIX / TRIALS: the three guarantees B's evaluator relies on."""
     rng = random.Random(0)

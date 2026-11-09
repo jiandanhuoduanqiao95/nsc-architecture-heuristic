@@ -1,0 +1,341 @@
+{
+  "split": "development",
+  "trials": 1000,
+  "note": "synthetic fixture for tools/selection_failures.py --self-test; NOT archive data",
+  "fixture_world": {
+    "split_keys": [
+      "syn_a",
+      "syn_b",
+      "syn_c",
+      "syn_d",
+      "syn_e",
+      "syn_f"
+    ],
+    "configs": {
+      "syn_a": {
+        "d_model": 64,
+        "n_layer": 2,
+        "n_head": [
+          2,
+          2
+        ],
+        "d_inner": [
+          128,
+          256
+        ],
+        "weight_init_std": 0.02
+      },
+      "syn_b": {
+        "d_model": 64,
+        "n_layer": 3,
+        "n_head": [
+          2,
+          2,
+          2
+        ],
+        "d_inner": [
+          256,
+          256,
+          256
+        ],
+        "weight_init_std": 0.02
+      },
+      "syn_c": {
+        "d_model": 128,
+        "n_layer": 2,
+        "n_head": [
+          4,
+          4
+        ],
+        "d_inner": [
+          256,
+          512
+        ],
+        "weight_init_std": 0.02
+      },
+      "syn_d": {
+        "d_model": 128,
+        "n_layer": 4,
+        "n_head": [
+          4,
+          4,
+          4,
+          4
+        ],
+        "d_inner": [
+          512,
+          512,
+          512,
+          512
+        ],
+        "weight_init_std": 0.02
+      },
+      "syn_e": {
+        "d_model": 64,
+        "n_layer": 4,
+        "n_head": [
+          4,
+          4,
+          4,
+          4
+        ],
+        "d_inner": [
+          128,
+          128,
+          128,
+          128
+        ],
+        "weight_init_std": 0.02
+      },
+      "syn_f": {
+        "d_model": 128,
+        "n_layer": 3,
+        "n_head": [
+          4,
+          4,
+          4
+        ],
+        "d_inner": [
+          384,
+          384,
+          384
+        ],
+        "weight_init_std": 0.02
+      }
+    },
+    "ppl": {
+      "syn_a": 46.0,
+      "syn_b": 52.0,
+      "syn_c": 48.0,
+      "syn_d": 41.0,
+      "syn_e": 45.0,
+      "syn_f": 39.5
+    },
+    "total": {
+      "syn_a": 1200000.0,
+      "syn_b": 1900000.0,
+      "syn_c": 1900000.0,
+      "syn_d": 4800000.0,
+      "syn_e": 600000.0,
+      "syn_f": 3000000.0
+    }
+  },
+  "entries": [
+    {
+      "method": "original_nsc",
+      "cap": 2000000,
+      "k": 1,
+      "seed": 2202628,
+      "pool": [
+        "syn_a",
+        "syn_b",
+        "syn_c",
+        "syn_e"
+      ],
+      "chosen": [
+        "syn_c"
+      ],
+      "chosen_ppl": [
+        48.0
+      ],
+      "best_ppl": 48.0,
+      "oracle_ppl": 45.0,
+      "regret": 3.0,
+      "mean_best_ppl": 48.0,
+      "mean_regret": 3.0,
+      "sd_best_ppl": 0.0
+    },
+    {
+      "method": "original_nsc",
+      "cap": 2000000,
+      "k": 3,
+      "seed": 2202630,
+      "pool": [
+        "syn_a",
+        "syn_b",
+        "syn_c",
+        "syn_e"
+      ],
+      "chosen": [
+        "syn_c",
+        "syn_b",
+        "syn_e"
+      ],
+      "chosen_ppl": [
+        48.0,
+        52.0,
+        45.0
+      ],
+      "best_ppl": 45.0,
+      "oracle_ppl": 45.0,
+      "regret": 0.0,
+      "mean_best_ppl": 45.0,
+      "mean_regret": 0.0,
+      "sd_best_ppl": 0.0
+    },
+    {
+      "method": "original_nsc",
+      "cap": 5000000,
+      "k": 1,
+      "seed": 5202628,
+      "pool": [
+        "syn_a",
+        "syn_b",
+        "syn_c",
+        "syn_d",
+        "syn_e",
+        "syn_f"
+      ],
+      "chosen": [
+        "syn_d"
+      ],
+      "chosen_ppl": [
+        41.0
+      ],
+      "best_ppl": 41.0,
+      "oracle_ppl": 39.5,
+      "regret": 1.5,
+      "mean_best_ppl": 41.0,
+      "mean_regret": 1.5,
+      "sd_best_ppl": 0.0
+    },
+    {
+      "method": "original_nsc",
+      "cap": 5000000,
+      "k": 3,
+      "seed": 5202630,
+      "pool": [
+        "syn_a",
+        "syn_b",
+        "syn_c",
+        "syn_d",
+        "syn_e",
+        "syn_f"
+      ],
+      "chosen": [
+        "syn_d",
+        "syn_f",
+        "syn_c"
+      ],
+      "chosen_ppl": [
+        41.0,
+        39.5,
+        48.0
+      ],
+      "best_ppl": 39.5,
+      "oracle_ppl": 39.5,
+      "regret": 0.0,
+      "mean_best_ppl": 39.5,
+      "mean_regret": 0.0,
+      "sd_best_ppl": 0.0
+    },
+    {
+      "method": "reported_parameters",
+      "cap": 2000000,
+      "k": 1,
+      "seed": 2202628,
+      "pool": [
+        "syn_a",
+        "syn_b",
+        "syn_c",
+        "syn_e"
+      ],
+      "chosen": [
+        "syn_c"
+      ],
+      "chosen_ppl": [
+        48.0
+      ],
+      "best_ppl": 48.0,
+      "oracle_ppl": 45.0,
+      "regret": 3.0,
+      "mean_best_ppl": 50.116,
+      "mean_regret": 5.116,
+      "sd_best_ppl": 1.9966331661073848
+    },
+    {
+      "method": "reported_parameters",
+      "cap": 2000000,
+      "k": 3,
+      "seed": 2202630,
+      "pool": [
+        "syn_a",
+        "syn_b",
+        "syn_c",
+        "syn_e"
+      ],
+      "chosen": [
+        "syn_c",
+        "syn_b",
+        "syn_a"
+      ],
+      "chosen_ppl": [
+        48.0,
+        52.0,
+        46.0
+      ],
+      "best_ppl": 46.0,
+      "oracle_ppl": 45.0,
+      "regret": 1.0,
+      "mean_best_ppl": 46.0,
+      "mean_regret": 1.0,
+      "sd_best_ppl": 0.0
+    },
+    {
+      "method": "reported_parameters",
+      "cap": 5000000,
+      "k": 1,
+      "seed": 5202628,
+      "pool": [
+        "syn_a",
+        "syn_b",
+        "syn_c",
+        "syn_d",
+        "syn_e",
+        "syn_f"
+      ],
+      "chosen": [
+        "syn_d"
+      ],
+      "chosen_ppl": [
+        41.0
+      ],
+      "best_ppl": 41.0,
+      "oracle_ppl": 39.5,
+      "regret": 1.5,
+      "mean_best_ppl": 41.0,
+      "mean_regret": 1.5,
+      "sd_best_ppl": 0.0
+    },
+    {
+      "method": "reported_parameters",
+      "cap": 5000000,
+      "k": 3,
+      "seed": 5202630,
+      "pool": [
+        "syn_a",
+        "syn_b",
+        "syn_c",
+        "syn_d",
+        "syn_e",
+        "syn_f"
+      ],
+      "chosen": [
+        "syn_d",
+        "syn_f",
+        "syn_c"
+      ],
+      "chosen_ppl": [
+        41.0,
+        39.5,
+        48.0
+      ],
+      "best_ppl": 39.5,
+      "oracle_ppl": 39.5,
+      "regret": 0.0,
+      "mean_best_ppl": 39.5,
+      "mean_regret": 0.0,
+      "sd_best_ppl": 0.0
+    }
+  ]
+}

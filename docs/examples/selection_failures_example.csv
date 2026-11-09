@@ -1,0 +1,6 @@
+method,cap,k,chosen_ids,chosen_ppl,best_id,best_ppl,gap,reason_tags,score_rank_of_best,size_ratio_chosen_vs_best,depth_delta,width_delta
+original_nsc,2000000,1,syn_c,48.0,syn_e,45.0,3.0,score_missed_oracle|near_cap|depth_mismatch|width_mismatch,3,3.1666666666666665,-2,64
+reported_parameters,2000000,1,syn_c,48.0,syn_e,45.0,3.0,score_missed_oracle|near_cap|depth_mismatch|width_mismatch|tie_at_boundary,4,3.1666666666666665,-2,64
+original_nsc,5000000,1,syn_d,41.0,syn_f,39.5,1.5,score_missed_oracle|near_cap|depth_mismatch,2,1.6,1,0
+reported_parameters,5000000,1,syn_d,41.0,syn_f,39.5,1.5,score_missed_oracle|near_cap|depth_mismatch,2,1.6,1,0
+reported_parameters,2000000,3,syn_c|syn_b|syn_a,48.0|52.0|46.0,syn_e,45.0,1.0,score_missed_oracle|near_cap|depth_mismatch|pool_artifact,4,2.0,-2,0
