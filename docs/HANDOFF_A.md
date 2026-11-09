@@ -22,7 +22,7 @@ generated on the parent commit.
 |---|---|---|
 | 1 | `check_starter.py` PASS, output = plan §1.7 | `docs/reproduction.md` §2 |
 | 2 | dev evaluation matches `expected_development.json` field-by-field | CH03 (3/3) + `docs/reproduction.md` §5 D0-1 (one 1-ULP field on Python ≥3.11, group-approved rule) |
-| 3 | unit tests | `Ran 96 tests ... OK` |
+| 3 | unit tests | `Ran 101 tests ... OK` |
 | 4 | `checks/run_checks.py` | `18/18 checks passed`, `results/checks.json` |
 | 5 | `checks/run_checks.py --mutations` | `7/7 mutations caught` |
 | 6 | α=0 exact recovery | CH05: 200/200 bitwise |
@@ -34,7 +34,7 @@ generated on the parent commit.
 | 12 | hygiene | `student_score.py` has exactly ALPHA/score/ablation; starter files byte-identical (CH01, manifest); docs complete; tag exists; cold clone green (below) |
 
 Cold clone (`git clone` → fresh dir): `check_starter.py` PASS,
-`checks/run_checks.py` **18/18**, `--mutations` **7/7**, 96 tests OK.
+`checks/run_checks.py` **18/18**, `--mutations` **7/7**, 101 tests OK.
 
 ## For role B — 5-line starter
 
