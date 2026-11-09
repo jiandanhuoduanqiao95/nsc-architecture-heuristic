@@ -132,6 +132,19 @@ ablation are identical in every run). Hand C: both grid JSONs, the six-method
 table, `selection_1000.json`, `selection_failures.{csv,md}`. Commit them and
 re-run Step 0 (all green, `git status` clean).
 
+## Submission language and format (applies to C2 and C3)
+
+The milestone draft and the final report are submitted in **English**.
+Course format: Times New Roman 12 pt, 2.5 cm margins, A4, single spacing,
+4 pages excluding references, submitted as **PDF**.
+
+A Chinese translation, if the team wants one for internal discussion, lives
+under `docs/zh/` (for example `docs/zh/report_zh.md`) and is a
+**non-submitted reference copy** — never replace the English primary with
+it, and never submit it. `docs/report_pack.md` and
+`docs/report_template_en.md` are English; C writes English first and
+translates only afterwards as a secondary copy.
+
 ## Role C — 4-page draft and milestone tag
 
 **C2. Draft** (owner C): start from `docs/report_pack.md` (every number is

@@ -34,6 +34,9 @@ role A (changes go through A); `variants/`, `results/dev_grid*` and
    --fix` (the doc-count gate fails on any stale count); verification runs of
    the check suite use `python3 checks/run_checks.py --no-write`.
 10. Never move an existing tag; create a new one.
+11. Submission documents are English; Chinese working copies live under
+    `docs/zh/` and are never submitted. `grep -rP '[\x{4e00}-\x{9fff}]'` over
+    the repository must only match `docs/zh/`.
 
 ## Hard constraints
 

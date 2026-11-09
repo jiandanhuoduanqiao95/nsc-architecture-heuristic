@@ -64,7 +64,7 @@ $ git tag -l                                           -> a-scorer-v1, starter-i
 | `checks/mutations.py` | patches exactly the module objects the checks call through (`importlib.import_module` handles the `ctxnsc.breakdown` function-shadowing); 7/7 caught empirically | grep l.24–27 + mutations run |
 | `tests/` | pure unittest, no network/writes/env; now also covers C4 tie-break and the 1,000/200 prefix | grep for urllib/write_text/environ → none; `tests/test_rules.py` added (SR-6) |
 | `tools/` | every script bootstraps `sys.path` (11/11), reads only allowed data files, writes only under `results/`+`docs/` | per-file `grep -c sys.path.insert` = 1 |
-| `docs/` | no stale "16 项检查/五道门禁"; the single v1.1 mention is the plan-required correction note (mechanism.md §5) | grep across docs/AGENTS/README |
+| `docs/` | no stale "16-item checks / five gates" (original Chinese wording reworded for the English-primary closeout); the single v1.1 mention is the plan-required correction note (mechanism.md §5) | grep across docs/AGENTS/README |
 | `results/` | all script-generated; `checks.json` has 18 + python_version + git_commit + timestamp; `data_audit.csv` 201 lines; `reorder_pairs.csv` 13 data rows; **no** `dev_grid_*.json`/`selection_1000.json` | `wc -l`, `python -c` inspections |
 | `git` | starter files byte-identical to `starter-import` (empty diff); no `__pycache__/.venv/*.pyc` tracked; tags present | `git diff --stat starter-import -- ...` = 0 lines; `git ls-files` grep empty |
 
@@ -271,3 +271,11 @@ verifying a claim before writing it):
 Unchanged by design: `results/reorder_pairs.csv` and
 `results/weighting_diagnostic.csv` only gained appended figure-data columns
 (all prior values identical; summary JSONs byte-identical).
+
+## Round 9 — English-primary closeout (2026-11-10, tag `a-scorer-handoff.1`)
+
+| id | sev | item | note |
+|---|---|---|---|
+| R9-1 | P2 | `tools/make_report_pack.py --check` printed "66 cited values" — an overcount: the counter matched Section 4 body-table lines starting with `\| S` in addition to the Sources rows (the real count is 61) | the counter now counts only Sources-table rows; `tests/test_report_pack.py` asserts ≥ 60 and in fact covers 61/61 |
+| R9-2 | P2 | Chinese content outside `docs/zh/`: the HANDOFF group template, checklist row 15's phrase, and 7 characters in SELF_REVIEW | HANDOFF template translated to English; the Chinese original moved to `docs/zh/group_message_zh.md` (non-submitted reference); checklist row 15 now reads "who was chosen / who was best / gap / reason"; the 7 characters reworded; `grep -rP '[\x{4e00}-\x{9fff}]'` now matches only `docs/zh/` |
+| R9-3 | — | new `docs/report_template_en.md` (English 4-page skeleton, per-section budgets, three [[B: …]] slots, numbers only via Sources ids) and the runbook's "Submission language and format" section | milestone draft + final report are English PDF; `docs/zh/` copies are never submitted |

@@ -14,6 +14,7 @@ Tag map (no tag is ever moved again):
 | `a-scorer-v1.1` (eb42979) | historical: self-review rectification (it was re-pointed once within its own session; recorded in `docs/SELF_REVIEW_A.md`) |
 | `a-scorer-final` (e183692) | historical: closeout tree; it was rebuilt ONCE (user-approved) to fix a typo in its results-commit message (it named 4d41ed4…; the recorded run commit is c6166c6…) |
 | **`a-scorer-handoff`** | **current**: closeout + B/C enablement tools (this file's state) |
+| `a-scorer-handoff.1` | English-primary closeout: submission-language rule, English 4-page skeleton (`docs/report_template_en.md`), CJK confined to `docs/zh/`, report-pack citation coverage 61/61 (this file's commit) |
 
 For `a-scorer-final` and `a-scorer-handoff`, `results/checks.json` was
 generated on the commit directly beneath the tag (`git show
@@ -29,7 +30,7 @@ only. `a-scorer-handoff` is A's snapshot, **not** the team milestone tag.
 |---|---|---|
 | 1 | `check_starter.py` PASS, output = plan §1.7 | `docs/reproduction.md` §2 |
 | 2 | dev evaluation matches `expected_development.json` field-by-field | CH03 (3/3) + `docs/reproduction.md` §5 D0-1 (one 1-ULP field on Python ≥3.11, group-approved rule) |
-| 3 | unit tests | `Ran 108 tests ... OK` |
+| 3 | unit tests | `Ran 109 tests ... OK` |
 | 4 | `checks/run_checks.py` | `18/18 checks passed`, `results/checks.json` |
 | 5 | `checks/run_checks.py --mutations` | `7/7 mutations caught` |
 | 6 | α=0 exact recovery | CH05: 200/200 bitwise |
@@ -41,7 +42,7 @@ only. `a-scorer-handoff` is A's snapshot, **not** the team milestone tag.
 | 12 | hygiene | `student_score.py` has exactly ALPHA/score/ablation; starter files byte-identical (CH01, manifest); docs complete; tags exist; cold clone green |
 
 Cold clone (`git clone` → fresh dir): `check_starter.py` PASS,
-`checks/run_checks.py` **18/18**, `--mutations` **7/7**, 108 tests OK.
+`checks/run_checks.py` **18/18**, `--mutations` **7/7**, 109 tests OK.
 
 ## Handoff additions (2026-11-09) — so B/C can run without A
 
@@ -148,9 +149,21 @@ changes to `ctxnsc/` require A's sign-off per `AGENTS.md`.
 ## Group message template
 
 ```
-@B @C 角色 A 已交接：tag a-scorer-handoff（历史标记 a-scorer-v1 / v1.1 / final 不再移动）。
-先看 docs/milestone_runbook.md：B 按 B1–B6 跑（α/β 网格用 variants/dev_alpha_*、variants/m3_beta_*；α*/β* 用 tools/select_alpha.py；六方法 1,000 次导出 results/selection_1000.json，契约在 docs/interface.md；失败案例用 tools/selection_failures.py）。
-C：先决定作者邮箱再推公开远端（runbook C0）；4 页素材在 docs/report_pack.md（每个数字有来源，三个 [[B: …]] 待 B 填）；图在 docs/figures/；freeze 模板 docs/freeze_template.json；约定草案 docs/CONVENTIONS_draft.md 待签。
-验收：checks/run_checks.py --no-write → 18/18；--mutations → 7/7；单测全过；check_starter PASS。
-不要改 student_score.py 的 ALPHA（冻结时由 C 改并写 freeze.json，CH18 --freeze 校验）；--split final 只在 freeze tag 之后由 B 跑一次。
+@B @C Role A handoff complete: tag a-scorer-handoff (historical tags
+a-scorer-v1 / v1.1 / final are frozen and never moved).
+Start with docs/milestone_runbook.md. B runs B1-B6: the alpha grid via
+variants/dev_alpha_*, the beta grid via variants/m3_beta_*, alpha*/beta* via
+tools/select_alpha.py, the six-method 1,000-trial export to
+results/selection_1000.json (contract in docs/interface.md), and failure
+cases via tools/selection_failures.py.
+C: decide the author email before pushing the public remote (runbook C0);
+the 4-page material is docs/report_pack.md (every number sourced, three
+[[B: ...]] slots left for B); figures in docs/figures/; freeze template
+docs/freeze_template.json; conventions draft docs/CONVENTIONS_draft.md
+awaiting signature.
+Acceptance: checks/run_checks.py --no-write -> 18/18; --mutations -> 7/7;
+all unit tests pass; check_starter PASS.
+Do not edit student_score.py's ALPHA (C changes it at the freeze and writes
+freeze.json, validated by CH18 --freeze); --split final runs once, by B,
+only after the freeze tag.
 ```

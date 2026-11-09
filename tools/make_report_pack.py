@@ -418,7 +418,8 @@ def main():
         if not OUT.exists() or OUT.read_text(encoding="utf-8") != content:
             print("REPORT PACK DRIFTED (run python3 tools/make_report_pack.py)")
             return 1
-        n = content.count("\n| S") + content.count("\n| P")
+        table = content.partition("## Sources")[2]
+        n = len(re.findall(r"^\| (?:S|P)\d+ \|", table, flags=re.M))
         print(f"REPORT PACK OK (equals a fresh render; {n} cited values; "
               f"only the 3 [[B: ...]] placeholders)")
         return 0
