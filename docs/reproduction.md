@@ -143,7 +143,7 @@ import `student_score`. No mismatches with the plan were found beyond D0-1.
 ```
 python3 check_starter.py       -> PASS (4 lines, identical to §2)
 python3 checks/run_checks.py   -> 18/18 checks passed (1.80 s)
-python3 -m unittest discover -s tests -t . -> OK (101 tests)
+python3 -m unittest discover -s tests -t . -> OK (106 tests)
 python3 checks/run_checks.py --mutations -> 7/7 mutations caught
 ```
 
@@ -163,7 +163,7 @@ quantities; the A1 supplementary table quotes both scopes.
 
 | Command | Result |
 |---|---|
-| `python3 -m unittest discover -s tests -t .` | `Ran 101 tests ... OK` (1.8 s; suite size history: 51 at A2, 59 after self-review SR-6, 72 at a-scorer-final, then the handoff-tool tests) |
+| `python3 -m unittest discover -s tests -t .` | `Ran 106 tests ... OK` (1.8 s; suite size history: 51 at A2, 59 after self-review SR-6, 72 at a-scorer-final, then the handoff-tool tests) |
 | `python3 tools/show_breakdown.py config_0_j0 0` | 5 layers, `S0=589.868164872 S(0)=589.868164872`, `exact: S(0) == original_nsc -> True` |
 | `python3 tools/show_breakdown.py config_0_j0 0.5` | per-layer A/F/c/factor equal to the plan's hand-check to the printed digit; `S(0.5)=517.201199027 sumA=126.526016726 sumA+F1=216.446042162` |
 | `python3 tools/select_alpha.py --self-test` | `TIE-BREAK OK` + `SELECTION OK` |
@@ -193,7 +193,7 @@ freeze_mode / per-check records). Per-check: CH01 15/15 byte-exact;
 CH02 7/7; CH03 3/3 (bitwise, D0-1 tolerated field, reverse tests); CH04/05
 200/200 bitwise; CH06 200/200; CH07 200/200; CH08 32/32; CH09 200/200;
 CH10 200/200 max rel 1e-9 vs ΣA+F₁; CH11 9846/9846; CH12 4/4; CH13 3/3;
-CH14 2/2; CH15 59/59 (the file count grows as tools/tests are added: 31 at A3, 44 at a-scorer-final); CH16 100/100; CH17 6/6 (180 pairs, pools 24/65/83/96);
+CH14 2/2; CH15 60/60 (the file count grows as tools/tests are added: 31 at A3, 44 at a-scorer-final); CH16 100/100; CH17 6/6 (180 pairs, pools 24/65/83/96);
 CH18 4/4 dry-run (good fixture passes; wrong-α*, missing-field, trials=200
 rejected).
 

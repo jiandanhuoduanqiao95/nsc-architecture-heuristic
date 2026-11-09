@@ -44,9 +44,48 @@ _FALLBACK_STDLIB = {
 }
 
 
-def stdlib_names():
-    names = getattr(sys, "stdlib_module_names", None)
-    return set(names) | {"__future__"} if names else set(_FALLBACK_STDLIB)
+def interpreter_stdlib_names():
+    """Top-level standard-library module names of THIS interpreter.
+
+    Used where ``sys.stdlib_module_names`` does not exist (Python 3.9): the
+    names are read from the interpreter's own stdlib directory, its
+    ``lib-dynload`` extension modules and ``sys.builtin_module_names``, while
+    ``site-packages`` (third-party code) is skipped — so numpy/pytest/... are
+    still rejected. This replaces relying on the hand-curated list alone,
+    which produced false 3.9-only violations three times (builtins/unittest,
+    fractions, inspect).
+    """
+    import sysconfig
+    names = set(sys.builtin_module_names)
+    stdlib = Path(sysconfig.get_paths()["stdlib"])
+    if stdlib.is_dir():
+        for entry in stdlib.iterdir():
+            if entry.name in ("site-packages", "dist-packages", "__pycache__"):
+                continue
+            if entry.suffix == ".py":
+                names.add(entry.stem)
+            elif entry.is_dir() and (entry / "__init__.py").exists():
+                names.add(entry.name)
+        dynload = stdlib / "lib-dynload"
+        if dynload.is_dir():
+            for entry in dynload.iterdir():
+                names.add(entry.name.split(".", 1)[0])
+    return names
+
+
+_UNSET = object()
+
+
+def stdlib_names(module_names=_UNSET):
+    """Allowed stdlib roots: sys.stdlib_module_names on 3.10+, else derived.
+
+    ``module_names`` is injectable for tests (None forces the 3.9 path).
+    """
+    names = getattr(sys, "stdlib_module_names", None) if module_names is _UNSET \
+        else module_names
+    if names:
+        return set(names) | {"__future__"}
+    return interpreter_stdlib_names() | set(_FALLBACK_STDLIB) | {"__future__"}
 
 
 def iter_repo_py_files(root=None):
