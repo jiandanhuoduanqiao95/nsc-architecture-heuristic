@@ -165,7 +165,10 @@ def select_panel_sources(configs, dev_keys, want=12):
 CSV_FIELDS = ["pair_id", "source_config", "d_model", "n_layer", "split",
               "ffn_before", "ffn_after", "projection_params", "reference_macs",
               "nsc_before", "nsc_after", "nsc_rel_diff",
-              "s_a0", "s_a025", "s_a05", "s_a1", "s_a2", "delta_a05", "sign_ok"]
+              "s_a0", "s_a025", "s_a05", "s_a1", "s_a2", "delta_a05", "sign_ok",
+              # appended at handoff (figure data): S(alpha) of the AFTER order
+              "s_after_a0", "s_after_a025", "s_after_a05", "s_after_a1",
+              "s_after_a2"]
 
 
 def pair_row(pair_id, source, cfg, before, after):
@@ -195,6 +198,11 @@ def pair_row(pair_id, source, cfg, before, after):
         "s_a2": repr(s_before[2.0]),
         "delta_a05": repr(delta),
         "sign_ok": str(delta > 0.0),
+        "s_after_a0": repr(s_after[0.0]),
+        "s_after_a025": repr(s_after[0.25]),
+        "s_after_a05": repr(s_after[0.5]),
+        "s_after_a1": repr(s_after[1.0]),
+        "s_after_a2": repr(s_after[2.0]),
     }
     return row, s_before, s_after
 
@@ -241,7 +249,10 @@ def write_markdown(rows, toy_before_scores, toy_after_scores, sweep_count,
         "",
         "## Figure data: the toy pair's S(alpha) curves",
         "",
-        "Suggested figure (whether to render it is role C's call): x-axis"
+        "Rendered as `docs/figures/reorder_alpha_curve.svg` by"
+        " `tools/make_figures.py` (data: the pair_00 row of"
+        " `results/reorder_pairs.csv`); whether it goes into the report is"
+        " role C's call. Spec: x-axis"
         " alpha in {0, 0.25, 0.5, 1, 2}, y-axis S(alpha); two lines = the toy",
         "FFN orders [256,512] (before) and [512,256] (after); the lines touch",
         "at alpha=0 (the reorder tie) and separate as alpha grows — this is",

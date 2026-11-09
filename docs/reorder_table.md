@@ -28,7 +28,7 @@ Machine-checkable record: `results/reorder_summary.json` (sweep_pairs / sweep_vi
 
 ## Figure data: the toy pair's S(alpha) curves
 
-Suggested figure (whether to render it is role C's call): x-axis alpha in {0, 0.25, 0.5, 1, 2}, y-axis S(alpha); two lines = the toy
+Rendered as `docs/figures/reorder_alpha_curve.svg` by `tools/make_figures.py` (data: the pair_00 row of `results/reorder_pairs.csv`); whether it goes into the report is role C's call. Spec: x-axis alpha in {0, 0.25, 0.5, 1, 2}, y-axis S(alpha); two lines = the toy
 FFN orders [256,512] (before) and [512,256] (after); the lines touch
 at alpha=0 (the reorder tie) and separate as alpha grows — this is
 the mechanism's sensitivity, NOT predictive validity.

@@ -83,6 +83,11 @@ def main():
                 "position_l": "|".join(repr(p) for p in positions),
                 "max_abs_dev": repr(max_dev),
                 "pearson_c_vs_position": repr(pear),
+                # appended at handoff (figure data, label-free): S0 and the
+                # M2/M3 scores at the grid's largest strength alpha=beta=2
+                "s0": repr(s0),
+                "m2_alpha2": repr(m2_scores[2.0][-1]),
+                "m3_beta2": repr(m3_scores[2.0][-1]),
             })
             devs.append(max_dev)
             pearsons.append(pear)
