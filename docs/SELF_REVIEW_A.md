@@ -279,3 +279,15 @@ Unchanged by design: `results/reorder_pairs.csv` and
 | R9-1 | P2 | `tools/make_report_pack.py --check` printed an overcounted citation total (66; the counter matched Section 4 body-table lines starting with `\| S` in addition to the Sources rows; the real count is 61) | the counter now counts only Sources-table rows; `tests/test_report_pack.py` asserts ≥ 60 and in fact covers 61/61 |
 | R9-2 | P2 | Chinese content outside `docs/zh/`: the HANDOFF group template, checklist row 15's phrase, and 7 characters in SELF_REVIEW | HANDOFF template translated to English; the Chinese original moved to `docs/zh/group_message_zh.md` (non-submitted reference); checklist row 15 now reads "who was chosen / who was best / gap / reason"; the 7 characters reworded; `grep -rP '[\x{4e00}-\x{9fff}]'` now matches only `docs/zh/` |
 | R9-3 | — | new `docs/report_template_en.md` (English 4-page skeleton, per-section budgets, three [[B: …]] slots, numbers only via Sources ids) and the runbook's "Submission language and format" section | milestone draft + final report are English PDF; `docs/zh/` copies are never submitted |
+
+## Round 10 — final handoff tag (2026-11-10, tag `a-scorer-handoff.3`)
+
+- The `.2` tag tree still contained the old provenance sentence ("relative to
+  the recorded commit e340011"); HEAD `7c9db66` corrected it but was untagged.
+- `.3` is built as C1 (docs only: current pointers → `.3`; `.2` marked
+  historical with the wrong-sentence note) + C2 (only `results/checks.json`,
+  recording C1's full hash).
+- Verify: `a-scorer-handoff.3^` = C1 = the JSON `git_commit`; `git diff
+  a-scorer-handoff.3^ a-scorer-handoff.3` is only `results/checks.json`;
+  113 tests, 18/18, 7/7 on 3.14 and 3.9; CJK only `docs/zh/`.
+- `.2` and all earlier tags remain historical; no tag was moved.

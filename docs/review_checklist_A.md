@@ -1,6 +1,6 @@
 # Role A — 16-item cross-review checklist (A8.1)
 
-Status legend: **PASS** = verified on tag `a-scorer-handoff.2`; **READY** = A's tool
+Status legend: **PASS** = verified on tag `a-scorer-handoff.3`; **READY** = A's tool
 check exists and passes, the B/C artifact it audits does not exist yet (run
 the listed command when it does); **PENDING** = needs the report/evaluator
 that B/C will produce.
@@ -24,5 +24,5 @@ that B/C will produce.
 | 15 | ≥3 concrete selection-failure cases (who was chosen / who was best / gap / reason) (T1-8/T2-6) | READY (tool) / PENDING (B's data, C's text) | `tools/selection_failures.py` (`--self-test` → `SELECTION FAILURES OK`) turns B's `results/selection_1000.json` into who/best/gap/why rows + ≥3 candidate cases; A reviews specificity in C's report |
 | 16 | 1,000-trial variance vs training-seed uncertainty stated separately (T1-7/T2-7) | PASS (draft) / PENDING (report) | `docs/mechanism.md` §10 carries the two-sentence split; final wording check on C's report |
 
-**Summary at `a-scorer-handoff.2`** (16 rows): PASS 5 (rows 3, 6, 9, 10, 14) · PASS on A's side with a B/C follow-up 7 (rows 1, 2, 4, 5, 7, 11, 16) · READY 2 (rows 12, 13) · READY tool, data pending 1 (row 15) · PENDING 1 (row 8) — every
+**Summary at `a-scorer-handoff.3`** (16 rows): PASS 5 (rows 3, 6, 9, 10, 14) · PASS on A's side with a B/C follow-up 7 (rows 1, 2, 4, 5, 7, 11, 16) · READY 2 (rows 12, 13) · READY tool, data pending 1 (row 15) · PENDING 1 (row 8) — every
 non-PASS row has a named owner and a runnable command; nothing is blocked on role A.

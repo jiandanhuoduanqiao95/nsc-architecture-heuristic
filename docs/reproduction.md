@@ -264,7 +264,7 @@ right before tagging `a-scorer-handoff`; the unittest output is trimmed
 to its summary lines).
 
 **Historical capture on `a-scorer-handoff` (108 tests / 66-count tool);**
-superseded by `a-scorer-handoff.2` (113 tests / 61 cited values; the
+superseded by `a-scorer-handoff.3` (113 tests / 61 cited values; the
 count tool now prints the exact Sources-row total, and the `.2` tree
 adds only the regenerated checks.json on top of the pointer/count-fix
 commit).
