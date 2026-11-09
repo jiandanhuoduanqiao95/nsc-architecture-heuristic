@@ -259,10 +259,12 @@ seeds, same tie-handling).
 ## 12. Handoff additions (2026-11-09) — commands and raw outputs
 
 New tools for roles B/C (P0-1 … P2 of the handoff task); each command below
-was run on this tree and its output pasted verbatim (not hand-copied).
+was run on the handoff tree and its output pasted verbatim (re-captured
+right before tagging `a-scorer-handoff`; the unittest output is trimmed
+to its summary lines).
 
 ```
-$ python3 tools/selection_failures.py --self-test    # exit 0, 0.06 s
+$ python3 tools/selection_failures.py --self-test    # exit 0, 0.05 s
 ROWS OK (8 entries, 5 failures, gap = best_ppl - oracle_ppl, all tags present)
 OUTPUT OK (13-column CSV, readable MD, committed examples current)
 CONTRACT OK (trials=200, wrong chosen_ppl, pool mismatch, non-top-k choice, split mismatch, final without --allow-final: all rejected)
@@ -303,9 +305,13 @@ FIGURES OK (committed SVGs equal a fresh render)
 $ python3 tools/make_report_pack.py --check    # exit 0, 0.06 s
 REPORT PACK OK (equals a fresh render; 66 cited values; only the 3 [[B: ...]] placeholders)
 
-$ python3 tools/check_docs_counts.py    # exit 0, 0.10 s
-live counts: 106 tests, CH15 60/60 .py files
+$ python3 tools/check_docs_counts.py    # exit 0, 0.09 s
+live counts: 108 tests, CH15 60/60 .py files
 DOC COUNTS OK (no stale counts; current counts present)
+
+$ python3 -m unittest discover -s tests -t .    # exit 0, 1.96 s
+Ran 108 tests in 1.877s
+OK
 ```
 
 M3 acceptance run through the official harness (contract check, not a beta

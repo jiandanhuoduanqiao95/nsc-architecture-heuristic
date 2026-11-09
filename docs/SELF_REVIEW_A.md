@@ -246,3 +246,28 @@ typo and this note are recorded here. Composition note: the review_checklist/rep
 pointers were already part of the PARENT commit; the amend's 5-file delta
 is README.md, checks/run_checks.py, docs/HANDOFF_A.md,
 docs/SELF_REVIEW_A.md and results/checks.json.
+
+## Round 8 — handoff enablement for B/C (2026-11-09, tag `a-scorer-handoff`)
+
+Scope: P0-1 failure-case extractor, P0-2 M3 variants, P1-1 freeze template +
+conventions draft, P1-2 report pack, P1-3 milestone runbook, P2 figures.
+Scoring logic, `student_score.py`, starter files and existing tags untouched;
+no α/β grid run, no `--split final`. Full gate (3.14 + 3.9) after every item.
+
+Problems found and fixed during this round (all by running the gate or by
+verifying a claim before writing it):
+
+| id | sev | problem | fix | evidence |
+|---|---|---|---|---|
+| R8-1 | P1 | new `report_pack` generator used nested same-quote f-strings — valid only on Python ≥ 3.12 (PEP 701), a SyntaxError on 3.9 | values pre-formatted into variables | 3.9 `ast.parse` OK; pack renders identically on 3.9 and 3.14 |
+| R8-2 | P1 | CH15 false 3.9-only violation (`inspect`) — third time for the hand-curated 3.9 whitelist | root cause: on interpreters without `sys.stdlib_module_names` the stdlib set is derived from the interpreter's stdlib dir + lib-dynload + builtins (site-packages skipped) | 3.9.25: 311 roots; `tests/test_py39_rules.py` (5) incl. numpy/pytest still rejected |
+| R8-3 | P1 | doc-count gate only blacklisted old strings: stale `72 tests`, `72 stdlib unit tests`, `72 OK` would pass | gate now flags ANY stale `<n> tests` / `<n> OK` / `CH15 a/b` in README/HANDOFF/reproduction, counts tests via unittest discovery, `--fix`; `$ `-transcripts exempt so pasted output stays verbatim | `tests/test_doc_counts.py` (6) |
+| R8-4 | P2 | figure legend claimed n_layer=2 is "the most M2/M3-different subgroup" — false per configuration (some n_layer≥3 configs exceed the smallest n_layer=2 ratio) | legend states CSV-derived group medians (1.501 vs 1.076); the report pack's claim is restricted to depth groups and is itself a cited computed value (n_layer=2 has the largest median of all 15 depth groups) | figure + `docs/report_pack.md` §4 |
+| R8-5 | P2 | HANDOFF claimed every closing tag's checks.json records its parent — false for `a-scorer-v1` (records db83a18) | statement restricted to the tags where it holds (final, handoff, v1.1) | per-tag `git show <tag>:results/checks.json` check |
+| R8-6 | P2 | the previous round's `--no-write` note had landed inside HANDOFF's shell code block | moved out; block contains commands only | `docs/HANDOFF_A.md` |
+| R8-7 | P2 | M3 `--verify` printed `OK` for a JSON it had just failed (exit code was still 1) | OK printed only when that file added no failure; both verifiers also read `results/dev_grid/` | corrupted-copy test → `FAIL …`, exit 1, no OK line |
+| R8-8 | P2 | the independent M3 formula wrote `beta*(i+1)/L` (different rounding from `beta*((i+1)/L)`; bitwise only because grid values are powers of two) | order-faithful formula | off-grid β=0.3 bitwise test |
+
+Unchanged by design: `results/reorder_pairs.csv` and
+`results/weighting_diagnostic.csv` only gained appended figure-data columns
+(all prior values identical; summary JSONs byte-identical).
