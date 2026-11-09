@@ -24,6 +24,12 @@ original NSC bit-for-bit, and every analysis choice is machine-checked
 > documented artifact; every other field is bit-exact everywhere. See
 > `docs/reproduction.md` §5.
 
+## Where to start (roles B and C)
+
+`docs/HANDOFF_A.md` (what is done, tag map, what B/C still own) and
+`docs/milestone_runbook.md` (exact commands, expected outputs and
+timings up to the 2026-11-19 milestone).
+
 ## Quick start
 
 ```sh
@@ -58,7 +64,13 @@ the dev machine; times are wall-clock):
 | `python3 tools/normalization_probe.py` | C3 identity check, untouched-layer displacement | 0.3 s |
 | `python3 tools/select_alpha.py --self-test` | `TIE-BREAK OK` + `SELECTION OK` | <0.1 s |
 | `python3 tools/selection_ext.py --self-test` | `PARITY OK` + `PREFIX OK` + `TRIALS OK` | 0.1 s |
-| `python3 tools/make_variants.py` / `--verify` | 5 grid variants / `VARIANTS OK` | <0.1 s |
+| `python3 tools/make_variants.py` / `--verify` | 5 grid variants / `VARIANTS OK` | 0.2 s |
+| `python3 tools/make_position_variants.py` / `--verify` | 5 M3 variants / `M3 VARIANTS OK` | 0.5 s |
+| `python3 tools/selection_failures.py --self-test` | `SELECTION FAILURES OK` | 0.1 s |
+| `python3 tools/make_report_pack.py --check` | `REPORT PACK OK (… 66 cited values …)` | 0.1 s |
+| `python3 tools/make_figures.py --check` | `FIGURES OK` | 0.1 s |
+| `python3 tools/d0_1_diagnose.py` | three-path D0-1 evidence, exit 0 | 0.1 s |
+| `python3 tools/check_docs_counts.py` | `DOC COUNTS OK` | 0.1 s |
 | `python3 tools/check_py39.py` | `PY39 OK` | <0.5 s |
 
 The final split (`--split final`) is run **once**, after the group's `freeze`
@@ -74,10 +86,13 @@ ctxnsc/                 # core library: specs, mp, terms, prefix, score, breakdo
 checks/                 # 18-check suite + 7-mutation proof + CLI (+ fixtures under tests/fixtures)
 tests/                  # 106 stdlib unit tests
 tools/                  # audit, breakdown, diagnostics, alpha selector, C3 probe,
-                        #   1,000-trial selection reference, variant generator, py39 gate
-variants/               # fixed-alpha modules for the dev grid (evaluate.py --student)
+                        #   1,000-trial selection reference, variant generators,
+                        #   failure-case extractor, report pack, figures, gates
+variants/               # dev_alpha_* (M2) and m3_beta_* (M3) modules for the dev grids
 docs/                   # reproduction, interface, mechanism, data_audit, reorder_table,
-                        #   starter README archive, starter manifest (SHA-256)
+                        #   HANDOFF_A + milestone_runbook (start here), report_pack,
+                        #   freeze_template.json, CONVENTIONS_draft, figures/ (SVG),
+                        #   examples/, starter README archive, starter manifest
 results/                # generated JSON/CSV artifacts (script outputs, never hand-edited;
                         #   *_summary.json carry the aggregates mechanism.md quotes)
 ```

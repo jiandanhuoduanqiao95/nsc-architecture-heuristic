@@ -1,20 +1,27 @@
-# HANDOFF — Role A → roles B and C (tag `a-scorer-final`, 2026-10-31)
+# HANDOFF — Role A → roles B and C (tag `a-scorer-handoff`, 2026-11-09)
 
-Role A's full deliverable is on tag `a-scorer-final`. This file is the entry
-point: what is done, how to use it, what is deliberately **not** done.
+Role A's deliverable is on tag **`a-scorer-handoff`** (the current handoff
+snapshot). This file is the entry point: what is done, how to use it, what
+B and C still must do, and what is deliberately **not** A's job. The
+step-by-step commands for the milestone are in `docs/milestone_runbook.md`.
 
-Tag map: `a-scorer-v1` marks the pre-self-review tree (fc4c49e, kept for
-history, never moved again); `a-scorer-v1.1` marks the self-review
-rectification; **`a-scorer-final` is the handoff tag** — the checks.json
-recorded in it was generated on the commit directly beneath it (see
-`git show a-scorer-final:results/checks.json | grep git_commit`);
-the tag commit itself adds the JSON plus the closeout doc edits and the
-`--no-write` flag. The tag was rebuilt ONCE (user-approved) to correct a
-typo in the results-commit message (it named 4d41ed4…; the recorded run
-commit is c6166c6…), then frozen.
-The tagged tree adds, relative to its parent, the `--no-write` flag
-(CLI-only; check logic unchanged) and the closeout docs; the JSON was
-generated on the parent commit.
+Tag map (no tag is ever moved again):
+
+| tag | marks |
+|---|---|
+| `starter-import` | the unmodified starter import |
+| `a-scorer-v1` (fc4c49e) | historical: pre-self-review tree |
+| `a-scorer-v1.1` (eb42979) | historical: self-review rectification (it was re-pointed once within its own session; recorded in `docs/SELF_REVIEW_A.md`) |
+| `a-scorer-final` (e183692) | historical: closeout tree; it was rebuilt ONCE (user-approved) to fix a typo in its results-commit message (it named 4d41ed4…; the recorded run commit is c6166c6…) |
+| **`a-scorer-handoff`** | **current**: closeout + B/C enablement tools (this file's state) |
+
+For `a-scorer-final` and `a-scorer-handoff`, `results/checks.json` was
+generated on the commit directly beneath the tag (`git show
+<tag>:results/checks.json | grep git_commit` equals `git rev-parse <tag>^`;
+a file cannot contain the hash of the commit that contains it). The same
+holds for `a-scorer-v1.1`; `a-scorer-v1`'s copy records an earlier run
+(db83a18, its tree's checks were not re-run before tagging) — historical
+only. `a-scorer-handoff` is A's snapshot, **not** the team milestone tag.
 
 ## A-DoD: 12/12 done (evidence per item)
 
@@ -30,13 +37,26 @@ generated on the parent commit.
 | 8 | reorder controls | CH11: toy + **9,845 pairs, 0 violations**; `results/reorder_pairs.csv`, `docs/reorder_table.md` |
 | 9 | size-control rule + 180 pairs (TA 1/2) | CH17 (rule string + 180 + pools 24/65/83/96) |
 | 10 | CH18 dry-run + negative tests (TA 1/2) | good fixture passes; wrong-α*, missing-field, `trials=200` rejected; MU7 caught |
-| 11 | M3 primitive contract (TA 1) | `tests/test_score.py::test_m3_primitive_bitwise` — 10 sampled configs × β∈{0,.25,.5,1,2}, bitwise vs independent formula |
-| 12 | hygiene | `student_score.py` has exactly ALPHA/score/ablation; starter files byte-identical (CH01, manifest); docs complete; tag exists; cold clone green (below) |
+| 11 | M3 primitive contract (TA 1) | `tests/test_score.py::test_m3_primitive_bitwise` + `tests/test_position_variants.py` |
+| 12 | hygiene | `student_score.py` has exactly ALPHA/score/ablation; starter files byte-identical (CH01, manifest); docs complete; tags exist; cold clone green |
 
 Cold clone (`git clone` → fresh dir): `check_starter.py` PASS,
 `checks/run_checks.py` **18/18**, `--mutations` **7/7**, 106 tests OK.
 
-## For role B — 5-line starter
+## Handoff additions (2026-11-09) — so B/C can run without A
+
+| what | for | entry point | acceptance |
+|---|---|---|---|
+| failure-case extractor (TA 1/2) | B → C | `tools/selection_failures.py` (contract: `docs/interface.md`) | `--self-test` → `SELECTION FAILURES OK` |
+| M3 position-only variants (TA 1/2) | B | `variants/m3_beta_{0.00,0.25,0.50,1.00,2.00}.py` | `tools/make_position_variants.py --verify` → `M3 VARIANTS OK` |
+| freeze template | C | `docs/freeze_template.json` (only α*/β* to fill) | `tests/test_freeze_template.py` |
+| conventions draft (C1–C8) | C to sign | `docs/CONVENTIONS_draft.md` | — |
+| report pack (every number sourced) | C | `docs/report_pack.md` | `tools/make_report_pack.py --check` |
+| figures (SVG) | C | `docs/figures/{reorder_alpha_curve,m2_m3_scores}.svg` | `tools/make_figures.py --check` |
+| milestone runbook | B, C | `docs/milestone_runbook.md` | — |
+| representative-choice helper | B | `tools.selection_ext.representative_choice` | archive cross-check in `tests/test_selection_failures.py` |
+
+## For role B — start here
 
 ```python
 import json
@@ -48,57 +68,64 @@ grid = scores_for_alphas(configs["config_0_j0"], (0, .25, .5, 1, 2))
 bd = breakdown_config(configs["config_0_j0"], 0.5)     # per-layer A/F/c/factor
 ```
 
-then, from the shell:
-
-```sh
-python3 evaluate.py --split development --student variants/dev_alpha_0.50.py --output results/dev_alpha_0.50.json
-python3 tools/select_alpha.py --method cumulative --grid 0,0.25,0.5,1,2   # M2 grid (C4 rule)
-python3 tools/select_alpha.py --method position   --grid 0,0.25,0.5,1,2   # M3 grid (same rule)
-python3 tools/selection_ext.py            # 1,000-trial reference: select_trials_ext(..., repeats=1000)
-python3 tools/make_variants.py --verify   # variant contract check
-```
-
-Contract details: `docs/interface.md`. Rules: M3 must use
+Then follow `docs/milestone_runbook.md` steps B1–B6: α grid
+(`variants/dev_alpha_*.py`) and β grid (`variants/m3_beta_*.py`) through
+`evaluate.py --student`, α*/β* via `tools/select_alpha.py --method
+cumulative|position`, the six-method × 1,000-trial export
+`results/selection_1000.json` (contract in `docs/interface.md`), and the
+failure table via `tools/selection_failures.py`. Rules: M3 uses
 `score_with_ratios` + `position_ratios` (never reimplemented); M1/M4 call
 `nsc.original_nsc` / `nsc.position_example` directly; every method goes
-through `evaluate.canonical`; all six methods + random use the same pools and
-`repeats=1000` (`tools/selection_ext.py`, whose 200-trial prefix parity is
-self-tested); do not edit `student_score.ALPHA` — sweep via `variants/`.
+through `evaluate.canonical`; all methods + random use the same pools and
+`repeats=1000`; do not edit `student_score.ALPHA` — sweep via `variants/`.
 
 ## For role C — acceptance commands
 
 ```sh
-python3 checks/run_checks.py --only CH17          # size-control rule + 180 pairs
-python3 checks/run_checks.py --only CH18          # dry-run now; strict once freeze.json exists
-python3 checks/run_checks.py --only CH18 --freeze # strict validation after you write freeze.json
-sha256sum -c docs/starter_manifest.sha256         # starter integrity
+python3 checks/run_checks.py --no-write --only CH17          # size-control rule + 180 pairs
+python3 checks/run_checks.py --no-write --only CH18          # dry-run now; strict once freeze.json exists
+python3 checks/run_checks.py --no-write --only CH18 --freeze # strict validation after you write freeze.json
+python3 tools/make_report_pack.py --check                    # report pack equals the artifacts
+python3 tools/make_figures.py --check                        # SVGs equal the artifacts
+sha256sum -c docs/starter_manifest.sha256                    # starter integrity
+python3 tools/check_py39.py                                  # stdlib-only gate
+```
 
 A full `checks/run_checks.py` rewrites `results/checks.json`
 (timestamp/git_commit); seeing exactly that file as modified afterwards is
 expected — pass `--no-write` for pure verification runs.
-python3 tools/check_py39.py                       # stdlib-only gate
-```
 
-`freeze.json` schema (your file, CH18's rules): keys exactly
-`alpha_star, beta_star, alpha_grid, beta_grid, selection_rule, tie_break,
-tie_handling, size_control_rule, trials, pool_rule, metrics, figures`;
-`alpha_star == results/dev_grid_cumulative.json:selected`, `beta_star ==
-results/dev_grid_position.json:selected`, grids `[0,0.25,0.5,1,2]`,
-`trials == 1000`, `size_control_rule` mentions 0.90 and 180, and
-`student_score.ALPHA == alpha_star`. A template lives at
-`tests/fixtures/freeze_example.json`.
+`freeze.json` (your file, repository root): copy `docs/freeze_template.json`
+and fill `alpha_star` / `beta_star` from `results/dev_grid_cumulative.json`
+/ `results/dev_grid_position.json` (`selected`); every other field is
+pre-filled with the plan's A8.2 values. CH18 strict additionally requires
+`student_score.ALPHA == alpha_star`. The template under `docs/` is never read
+by CH18 strict.
 
-## Explicitly out of scope for A (do not wait on A for these)
+## What B and C still must do (A does not do these)
 
-- α/β tuning on dev (B), M3/M4 evaluators (B), 1,000-trial execution (B)
+| owner | task | due |
+|---|---|---|
+| B | six-method evaluator (M1–M6 + ablation + random) on the 1,000-trial protocol; export `results/selection_1000.json` | before the milestone |
+| B | α grid + β grid through the harness; α*, β* with the C4 rule (`results/dev_grid_{cumulative,position}.json`) | before the milestone |
+| B | six-method development table; failure table (`tools/selection_failures.py`) | before the milestone |
+| C | public remote + push (decide the author email first, runbook C0) | before the milestone |
+| C | 4-page draft from `docs/report_pack.md` + B's tables; milestone tag on the team commit | 2026-11-19 23:59 BJT |
+| C | `freeze.json` + `CONVENTIONS.md` (from the draft) + `ALPHA` + `freeze` tag (CH18 `--freeze` must pass) | 2026-11-26 |
+| B | `--split final` once, after the freeze tag; final failure cases with `--allow-final` | after the freeze |
+| C | final 4-page report and graded tag | 2026-12-03 23:59 BJT |
+
+## Explicitly out of scope for A
+
+- α/β tuning on dev, M3/M4 evaluators, 1,000-trial execution (B)
 - `freeze.md` / `freeze.json` / `CONVENTIONS.md` / `freeze` tag (C)
-- `--split final` and failure-case analysis (B/C)
-- final report text, figures and repo publication (C)
+- `--split final` and the real failure-case analysis (B/C)
+- final report text and repository publication (C)
 
 ## Known limitations (already quantified, keep them in the report)
 
 1. M2 ≈ M3 (Pearson ≥ 0.9997 on dev): the attribution test has little power;
-   report as limitation + analyze the most-different subgroups.
+   the two-layer configurations separate them most (`docs/report_pack.md` §4).
 2. `c_l ≈ (l+1)/L` (panel median Pearson 0.99865): the discount is close to
    positional weighting for most architectures.
 3. `resources.total` includes adaptive embeddings (up to 57.85× projection
@@ -107,12 +134,11 @@ results/dev_grid_position.json:selected`, grids `[0,0.25,0.5,1,2]`,
    small perturbation of NSC ordering; sensitivity ≠ prediction.
 5. Fixture pstdev ULP artifact on Python ≥ 3.11 (D0-1) — documented, encoded
    in CH03, bitwise on 3.9/3.10.
-6. **Pending group decision (do not act unilaterally):** the git author
-   email is currently `72655576@my.cityu.edu.hk` (inferred by role A). The
-   actual course account is `72655576@cityu-dg.edu.cn`. If the group confirms
-   the school address, rewrite history with git-filter-repo/mailmap BEFORE
-   pushing to the public remote; until the user decides, the inferred
-   address stays and this file records the question.
+6. **Pending user decision (do not act unilaterally):** the git author email
+   is currently `72655576@my.cityu.edu.hk` (inferred by role A); the actual
+   course account is `72655576@cityu-dg.edu.cn`. Options and consequences
+   (keep / `.mailmap` / history rewrite, which changes every hash and tag)
+   are in `docs/milestone_runbook.md` C0; decide BEFORE the first public push.
 
 ## Contact
 
@@ -122,11 +148,9 @@ changes to `ctxnsc/` require A's sign-off per `AGENTS.md`.
 ## Group message template
 
 ```
-@B @C 角色 A 已交接：tag a-scorer-final（历史标记：a-scorer-v1 = 自审前树，a-scorer-v1.1 = 自审整改；二者不再移动）。
-接口：docs/interface.md（score_config / scores_for_alphas / breakdown_config / score_with_ratios）。
-验收：checks/run_checks.py → 18/18；--mutations → 7/7；CH17/CH18 已过（CH18 为 dry-run）。
-已完成：check_starter PASS；dev 与 expected 逐字段一致；α=0 逐位一致；恒等式 200/200；重排 9,845 对 0 违例。
-TA 工具：tools/select_alpha.py（α/β 网格，B 跑）；tools/normalization_probe.py（C3，B 写报告）；tools/selection_ext.py（1,000 次，B 的六方法全用它）。
-α 网格用 variants/ 跑 evaluate.py --student；不要改 student_score.py 的 ALPHA（冻结时由 C 改，同时写 freeze.json，我用 CH18 校验）。
-需要我配合：M1/M4 必须直调 nsc；M3 用 ctxnsc.score_with_ratios + position_ratios（同网格同规则）。
+@B @C 角色 A 已交接：tag a-scorer-handoff（历史标记 a-scorer-v1 / v1.1 / final 不再移动）。
+先看 docs/milestone_runbook.md：B 按 B1–B6 跑（α/β 网格用 variants/dev_alpha_*、variants/m3_beta_*；α*/β* 用 tools/select_alpha.py；六方法 1,000 次导出 results/selection_1000.json，契约在 docs/interface.md；失败案例用 tools/selection_failures.py）。
+C：先决定作者邮箱再推公开远端（runbook C0）；4 页素材在 docs/report_pack.md（每个数字有来源，三个 [[B: …]] 待 B 填）；图在 docs/figures/；freeze 模板 docs/freeze_template.json；约定草案 docs/CONVENTIONS_draft.md 待签。
+验收：checks/run_checks.py --no-write → 18/18；--mutations → 7/7；单测全过；check_starter PASS。
+不要改 student_score.py 的 ALPHA（冻结时由 C 改并写 freeze.json，CH18 --freeze 校验）；--split final 只在 freeze tag 之后由 B 跑一次。
 ```

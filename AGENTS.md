@@ -21,6 +21,19 @@ role A (changes go through A); `variants/`, `results/dev_grid*` and
    the check can fail — the mutation suite (`--mutations`, 7/7) is that
    evidence; extend checks, never delete mutations.
 6. Commit at the end of every stage; `git status` must be clean.
+7. Generated files are never hand-edited — change the generator, re-run it,
+   then run its `--check`: `docs/report_pack.md` (`tools/make_report_pack.py`),
+   `docs/figures/*.svg` (`tools/make_figures.py`), `docs/reorder_table.md`
+   (`tools/reorder_pairs.py --write`), `docs/data_audit.md`
+   (`tools/audit_data.py`), `docs/examples/*` and
+   `tests/fixtures/selection_example.json` (`tools/selection_failures.py`),
+   `variants/*` (`tools/make_variants.py`, `tools/make_position_variants.py`).
+8. `tools/selection_failures.py --split final` additionally needs
+   `--allow-final` and may only be run by role B after the `freeze` tag.
+9. After adding tests or `.py` files run `python3 tools/check_docs_counts.py
+   --fix` (the doc-count gate fails on any stale count); verification runs of
+   the check suite use `python3 checks/run_checks.py --no-write`.
+10. Never move an existing tag; create a new one.
 
 ## Hard constraints
 

@@ -255,3 +255,75 @@ note). Toy row reproduces §1.7: S(0.5) 113.8892745548438 vs 116.244184056…
 `REPEATS=200` in `evaluate.py` untouched; the 1,000-trial main protocol lives
 in `tools/selection_ext.py` for B's evaluator (all methods, same pools, same
 seeds, same tie-handling).
+
+## 12. Handoff additions (2026-11-09) — commands and raw outputs
+
+New tools for roles B/C (P0-1 … P2 of the handoff task); each command below
+was run on this tree and its output pasted verbatim (not hand-copied).
+
+```
+$ python3 tools/selection_failures.py --self-test    # exit 0, 0.06 s
+ROWS OK (8 entries, 5 failures, gap = best_ppl - oracle_ppl, all tags present)
+OUTPUT OK (13-column CSV, readable MD, committed examples current)
+CONTRACT OK (trials=200, wrong chosen_ppl, pool mismatch, non-top-k choice, split mismatch, final without --allow-final: all rejected)
+SELECTION FAILURES OK
+
+$ python3 tools/selection_failures.py --selection tests/fixtures/selection_example.json --split development --fixture-world --out-csv /tmp/sf_example.csv --out-md /tmp/sf_example.md    # exit 0, 0.05 s
+entries analysed: 8 (random skipped: 0); failures: 5
+wrote /tmp/sf_example.csv (5 rows) and /tmp/sf_example.md
+
+$ python3 tools/selection_failures.py --selection tests/fixtures/selection_example.json --split final    # exit 2, 0.05 s
+REFUSED: --split final requires --allow-final (role B, only after the group's freeze tag); refusing before reading any file
+
+$ python3 tools/make_position_variants.py --verify    # exit 0, 0.52 s
+OK   m3_beta_0.00.py: scores bitwise (primitive + independent formula); ablation == original_nsc on 200; score == original_nsc on 200 (no evaluate.py output yet to cross-check)
+OK   m3_beta_0.25.py: scores bitwise (primitive + independent formula); ablation == original_nsc on 200; score < original_nsc on 200 (no evaluate.py output yet to cross-check)
+OK   m3_beta_0.50.py: results/dev_m3_beta_0.50.json: student block matches recomputation, ablation == original_nsc, student != original_nsc
+OK   m3_beta_0.50.py: scores bitwise (primitive + independent formula); ablation == original_nsc on 200; score < original_nsc on 200
+OK   m3_beta_1.00.py: scores bitwise (primitive + independent formula); ablation == original_nsc on 200; score < original_nsc on 200 (no evaluate.py output yet to cross-check)
+OK   m3_beta_2.00.py: scores bitwise (primitive + independent formula); ablation == original_nsc on 200; score < original_nsc on 200 (no evaluate.py output yet to cross-check)
+M3 VARIANTS OK
+
+$ python3 tools/make_variants.py --verify    # exit 0, 0.20 s
+SKIP dev_alpha_0.00.py: no evaluate.py output yet (run evaluate.py --student variants/dev_alpha_0.00.py --output results/dev_grid/dev_alpha_0.00.json)
+SKIP dev_alpha_0.25.py: no evaluate.py output yet (run evaluate.py --student variants/dev_alpha_0.25.py --output results/dev_grid/dev_alpha_0.25.json)
+OK   dev_alpha_0.50.py: module scores bitwise; results/dev_alpha_0.50.json ranking block matches recomputation
+SKIP dev_alpha_1.00.py: no evaluate.py output yet (run evaluate.py --student variants/dev_alpha_1.00.py --output results/dev_grid/dev_alpha_1.00.json)
+SKIP dev_alpha_2.00.py: no evaluate.py output yet (run evaluate.py --student variants/dev_alpha_2.00.py --output results/dev_grid/dev_alpha_2.00.json)
+VARIANTS OK
+
+$ python3 checks/run_checks.py --no-write --only CH18 --dry-run    # exit 0, 0.06 s
+CH18 freeze_consistency     PASS (4/4, exact) [pass]
+1/1 checks passed
+(--no-write: the default results/checks.json is left untouched)
+
+$ python3 tools/make_figures.py --check    # exit 0, 0.04 s
+FIGURES OK (committed SVGs equal a fresh render)
+
+$ python3 tools/make_report_pack.py --check    # exit 0, 0.06 s
+REPORT PACK OK (equals a fresh render; 66 cited values; only the 3 [[B: ...]] placeholders)
+
+$ python3 tools/check_docs_counts.py    # exit 0, 0.10 s
+live counts: 106 tests, CH15 60/60 .py files
+DOC COUNTS OK (no stale counts; current counts present)
+```
+
+M3 acceptance run through the official harness (contract check, not a beta
+evaluation): `python3 evaluate.py --split development --student
+variants/m3_beta_0.50.py --output results/dev_m3_beta_0.50.json` (0.44 s);
+programmatic comparison of the JSON blocks — beta=0.5: student ranking ==
+original_nsc: False, ablation == original_nsc: True; beta=0.0 (run to /tmp):
+student == original_nsc in the ranking block and in all 8 selection cells.
+
+Notes:
+- `results/reorder_pairs.csv` gained `s_after_a*` and
+  `results/weighting_diagnostic.csv` gained `s0, m2_alpha2, m3_beta2` (figure
+  data); both changes are append-only — every pre-existing value is identical
+  and the three `*_summary.json` files regenerate byte-identically.
+- CH15 on Python 3.9 now derives the stdlib set from the interpreter's own
+  stdlib directory (311 roots on 3.9.25) after the hand-curated fallback
+  produced false 3.9-only violations three times (builtins/unittest,
+  fractions, inspect).
+- `tools/check_docs_counts.py` now fails on ANY stale `<n> tests` /
+  `CH15 a/b` mention in README/HANDOFF/reproduction (live counts from
+  unittest discovery); `--fix` rewrites only those live-count mentions.
