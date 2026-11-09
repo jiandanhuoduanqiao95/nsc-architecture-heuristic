@@ -106,18 +106,26 @@ def verify() -> int:
             "size_controlled_pairs": evaluate.pair_summary(scores, quality,
                                                            matched),
         }
-        out_path = REPO / "results" / f"dev_alpha_{alpha:.2f}.json"
-        if not out_path.exists():
-            print(f"SKIP {name}: {out_path.name} not present (run evaluate.py "
-                  f"--student variants/{name} --output {out_path.name} first)")
+        # evaluate.py outputs may live in results/ (A's acceptance run) or in
+        # results/dev_grid/ (role B's grid runs, plan section 3.1): check both.
+        candidates = [REPO / "results" / f"dev_alpha_{alpha:.2f}.json",
+                      REPO / "results" / "dev_grid" / f"dev_alpha_{alpha:.2f}.json"]
+        present = [p for p in candidates if p.exists()]
+        if not present:
+            print(f"SKIP {name}: no evaluate.py output yet (run evaluate.py "
+                  f"--student variants/{name} --output "
+                  f"results/dev_grid/dev_alpha_{alpha:.2f}.json)")
             continue
-        actual = json.loads(out_path.read_text())["ranking"]["student"]
-        if actual != expected_ranking:
-            print(f"FAIL {name}: ranking block differs from recomputation")
-            failures += 1
-        else:
-            print(f"OK   {name}: module scores bitwise; ranking block matches "
-                  f"recomputation (rho={expected_ranking['spearman_rho']:.6f})")
+        for out_path in present:
+            actual = json.loads(out_path.read_text())["ranking"]["student"]
+            if actual != expected_ranking:
+                print(f"FAIL {name}: {out_path.relative_to(REPO)} ranking block "
+                      f"differs from recomputation")
+                failures += 1
+            else:
+                print(f"OK   {name}: module scores bitwise; "
+                      f"{out_path.relative_to(REPO)} ranking block matches "
+                      f"recomputation")
     if failures:
         print(f"{failures} verification failures")
         return 1

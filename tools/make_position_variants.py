@@ -143,33 +143,38 @@ def verify():
                 failures.append(f"{name}: BETA=0 score({key}) != original_nsc")
             if beta > 0.0 and not score < s0:
                 failures.append(f"{name}: BETA>0 score({key}) not < original_nsc")
-        evaluated = REPO / "results" / f"dev_m3_beta_{beta:.2f}.json"
-        if evaluated.exists():
+        # evaluate.py outputs may live in results/ (A's acceptance run) or in
+        # results/dev_grid/ (role B's grid runs, plan section 3.1): check both.
+        candidates = [REPO / "results" / f"dev_m3_beta_{beta:.2f}.json",
+                      REPO / "results" / "dev_grid" / f"m3_beta_{beta:.2f}.json"]
+        present = [p for p in candidates if p.exists()]
+        for evaluated in present:
             if dev is None:
                 dev = load_dev(configs)
             keys, quality, pairs, matched = dev
             payload = json.loads(evaluated.read_text())
             scores = [evaluate.canonical(module.score(configs[k])) for k in keys]
             ranking = payload["ranking"]
+            label = str(evaluated.relative_to(REPO))
+            before = len(failures)
             if ranking["student"] != ranking_block(scores, quality, pairs, matched):
-                failures.append(f"{name}: {evaluated.name} student block != "
+                failures.append(f"{name}: {label} student block != "
                                 f"recomputation from direct scores")
             if ranking["ablation"] != ranking["original_nsc"]:
-                failures.append(f"{name}: {evaluated.name} ablation block != "
-                                f"original_nsc block")
+                failures.append(f"{name}: {label} ablation block != original_nsc block")
             same = ranking["student"] == ranking["original_nsc"]
             if (beta == 0.0) != same:
-                failures.append(f"{name}: {evaluated.name} student vs original_nsc "
+                failures.append(f"{name}: {label} student vs original_nsc "
                                 f"equality ({same}) contradicts BETA={beta}")
-            print(f"OK   {name}: scores bitwise (primitive + independent formula); "
-                  f"ablation == original_nsc; {evaluated.name}: student block "
-                  f"matches recomputation, ablation == original_nsc, student "
-                  f"{'==' if same else '!='} original_nsc")
-        elif not any(f.startswith(name) for f in failures):
+            if len(failures) == before:
+                print(f"OK   {name}: {label}: student block matches recomputation, "
+                      f"ablation == original_nsc, student "
+                      f"{'==' if same else '!='} original_nsc")
+        if not any(f.startswith(name) for f in failures):
             print(f"OK   {name}: scores bitwise (primitive + independent formula); "
                   f"ablation == original_nsc on 200; "
                   f"{'score == original_nsc on 200' if beta == 0.0 else 'score < original_nsc on 200'}"
-                  f" (no results/{evaluated.name} to cross-check)")
+                  + ("" if present else " (no evaluate.py output yet to cross-check)"))
     if failures:
         for line in failures[:20]:
             print("FAIL", line)
