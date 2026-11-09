@@ -2,7 +2,7 @@
 
 Milestone deadline: **2026-11-19 23:59 BJT** (baseline reproduction + new score
 + preliminary evaluation running). Freeze (internal): 2026-11-26. Final:
-2026-12-03 23:59 BJT. Role A's tag **`a-scorer-handoff.1` is A's handoff
+2026-12-03 23:59 BJT. Role A's tag **`a-scorer-handoff.2` is A's handoff
 snapshot, NOT the team milestone tag** — the milestone tag goes on the team
 commit that contains B's results and C's draft (step C3).
 
@@ -38,7 +38,7 @@ its timestamp/git_commit, which makes `git status` dirty by design).
 ```sh
 git remote add origin https://github.com/<owner>/nsc-g045.git   # or https://gitee.com/<owner>/nsc-g045.git
 git push -u origin master
-git push origin --tags        # starter-import, a-scorer-v1, a-scorer-v1.1, a-scorer-final, a-scorer-handoff, a-scorer-handoff.1
+git push origin --tags        # starter-import, a-scorer-v1, a-scorer-v1.1, a-scorer-final, a-scorer-handoff, a-scorer-handoff.1, a-scorer-handoff.2
 ```
 
 Expected: the remote shows `master` and the five tags; a fresh clone passes
