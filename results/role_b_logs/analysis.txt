@@ -1,0 +1,14 @@
+$ D:\AIcourseAPP\envs\nsc-role-b\python.exe -X utf8 role_b_experiments.py --stage analysis
+ROLE B DEVELOPMENT | Python 3.10.22 | Windows-10-10.0.26100-SP0 | D:\AIcourseAPP\envs\nsc-role-b\python.exe
+WROTE results/selection_1000.json
+WROTE results/dev_ranking.json
+WROTE results/selection_200_appendix.json
+WROTE results/dev_ranking.csv
+WROTE results/selection_1000_table.csv
+WROTE results/selection_failures.csv
+WROTE docs/selection_failures.md
+WROTE docs/role_b_development.md
+alpha_star=2; beta_star=1; 64/64 prefix and harness comparisons passed
+Failure analysis: 56 entries; 43 failures; 13 successes
+
+exit=0 wall_seconds=2.110

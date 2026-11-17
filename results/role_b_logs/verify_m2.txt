@@ -1,0 +1,10 @@
+$ D:\AIcourseAPP\envs\nsc-role-b\python.exe -X utf8 tools/make_variants.py --verify
+OK   dev_alpha_0.00.py: module scores bitwise; results\dev_grid\dev_alpha_0.00.json ranking block matches recomputation
+OK   dev_alpha_0.25.py: module scores bitwise; results\dev_grid\dev_alpha_0.25.json ranking block matches recomputation
+OK   dev_alpha_0.50.py: module scores bitwise; results\dev_alpha_0.50.json ranking block matches recomputation
+OK   dev_alpha_0.50.py: module scores bitwise; results\dev_grid\dev_alpha_0.50.json ranking block matches recomputation
+OK   dev_alpha_1.00.py: module scores bitwise; results\dev_grid\dev_alpha_1.00.json ranking block matches recomputation
+OK   dev_alpha_2.00.py: module scores bitwise; results\dev_grid\dev_alpha_2.00.json ranking block matches recomputation
+VARIANTS OK
+
+exit=0 wall_seconds=0.288

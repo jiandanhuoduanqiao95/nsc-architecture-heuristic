@@ -1,0 +1,9 @@
+$ D:\AIcourseAPP\envs\nsc-role-b\python.exe -X utf8 check_starter.py
+Traceback (most recent call last):
+  File "D:\CityULearning\PycharmProjects\nsc-architecture-heuristic\check_starter.py", line 70, in <module>
+    main()
+  File "D:\CityULearning\PycharmProjects\nsc-architecture-heuristic\check_starter.py", line 62, in main
+    assert hashlib.sha256((data / filename).read_bytes()).hexdigest() == expected
+AssertionError
+
+exit=1 wall_seconds=0.395

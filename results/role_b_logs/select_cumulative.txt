@@ -1,0 +1,11 @@
+$ D:\AIcourseAPP\envs\nsc-role-b\python.exe -X utf8 tools/select_alpha.py --method cumulative --grid 0,0.25,0.5,1,2
+wrote D:\CityULearning\PycharmProjects\nsc-architecture-heuristic\results\dev_grid_cumulative.json
+method=cumulative
+  alpha=0  rho=0.969745
+  alpha=0.25  rho=0.971161
+  alpha=0.5  rho=0.970753
+  alpha=1  rho=0.971533
+  alpha=2  rho=0.972745
+selected=2  tie_break_used=False
+
+exit=0 wall_seconds=0.258

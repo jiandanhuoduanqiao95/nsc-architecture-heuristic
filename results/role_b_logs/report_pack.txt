@@ -1,0 +1,4 @@
+$ D:\AIcourseAPP\envs\nsc-role-b\python.exe -X utf8 tools/make_report_pack.py --check
+REPORT PACK OK (equals a fresh render; 61 cited values; only the 3 [[B: ...]] placeholders)
+
+exit=0 wall_seconds=0.064

@@ -193,7 +193,7 @@ freeze_mode / per-check records). Per-check: CH01 15/15 byte-exact;
 CH02 7/7; CH03 3/3 (bitwise, D0-1 tolerated field, reverse tests); CH04/05
 200/200 bitwise; CH06 200/200; CH07 200/200; CH08 32/32; CH09 200/200;
 CH10 200/200 max rel 1e-9 vs ΣA+F₁; CH11 9846/9846; CH12 4/4; CH13 3/3;
-CH14 2/2; CH15 60/60 (the file count grows as tools/tests are added: 31 at A3, 44 at a-scorer-final); CH16 100/100; CH17 6/6 (180 pairs, pools 24/65/83/96);
+CH14 2/2; CH15 61/61 (the file count grows as tools/tests are added: 31 at A3, 44 at a-scorer-final); CH16 100/100; CH17 6/6 (180 pairs, pools 24/65/83/96);
 CH18 4/4 dry-run (good fixture passes; wrong-α*, missing-field, trials=200
 rejected).
 
@@ -339,3 +339,51 @@ Notes:
 - `tools/check_docs_counts.py` now fails on ANY stale `<n> tests` /
   `CH15 a/b` mention in README/HANDOFF/reproduction (live counts from
   unittest discovery); `--fix` rewrites only those live-count mentions.
+
+## 13. Role B development execution (Windows, 2026-11-17)
+
+Interpreter: `D:\AIcourseAPP\envs\nsc-role-b\python.exe`, CPython 3.10.22,
+Windows build 26100, UTF-8 enabled. Executed through the PyCharm integrated
+terminal. Activate the environment and run from the repository root.
+Full raw outputs, including failures and measured wall times, are archived
+under `results/role_b_logs/`; see `docs/HANDOFF_B.md` for interpretation.
+
+| acceptance/reproduction command | actual result | wall time |
+|---|---|---|
+| `python -X utf8 role_b_experiments.py --stage grids` | ten harness evaluations; both variant verifiers pass; alpha*=2, beta*=1, no selector ties | harness calls 0.64-0.65 s each; full command about 8 s |
+| `python -X utf8 role_b_experiments.py --stage analysis` | writes eight deterministic analysis artifacts; 64/64 prefix/harness comparisons pass; 56 non-random entries, 43 failures, 13 successes | about 2 s |
+| `python -X utf8 role_b_experiments.py --check` | all eight artifacts equal independent fresh computation, exit 0 | 2.077 s |
+| `python -X utf8 check_starter.py` | **exit 1**, original data hash assertion (CRLF checkout; pre-existing) | 0.398 s |
+| `python -X utf8 checks/run_checks.py --no-write` | **17/18**, CH01 fails original byte hashes; CH02-CH18 pass | 2.722 s |
+| `python -X utf8 -m unittest discover -s tests -t .` | 113 cases, **one failure**, generated example path separators differ on Windows | 3.044 s |
+| `python -X utf8 checks/run_checks.py --mutations` | `7/7 mutations caught`; B additionally verifies all designated catchers, excluding CH01 | 14.641 s |
+| `python -X utf8 tools/selection_ext.py --self-test` | `PARITY OK`, `PREFIX OK`, `TRIALS OK`, exit 0 | 0.082 s |
+| `python -X utf8 tools/check_docs_counts.py --fix` | updated current CH15 count in this document; `DOC COUNTS OK`, exit 0 | not separately timed |
+| `python -X utf8 tools/check_docs_counts.py` | `DOC COUNTS OK` (113 discovered cases; source count 61) | 0.112 s |
+| `python -X utf8 tools/check_py39.py` | `PY39 OK`, exit 0 | 0.109 s |
+| `python -X utf8 tools/make_figures.py --check` | `FIGURES OK`, exit 0 | 0.042 s |
+| `python -X utf8 tools/make_report_pack.py --check` | `REPORT PACK OK` (61 cited values; three B placeholders), exit 0 | 0.064 s |
+| `python -X utf8 role_b_experiments.py --stage acceptance` | records all above exits; four corrupt real exports rejected; returns **1** while Windows blockers remain | about 24 s |
+| `python -X utf8 role_b_experiments.py --stage checkout-check` | isolated fresh LF checkout: starter PASS, **18/18**, **7/7 mutations**, B artifact verification PASS; exit 0 | 0.399 + 2.748 + 14.662 + 2.096 s, plus clone/copy overhead |
+
+The checks and unit tests above are not described as fully passing. The
+specific portability fixes proposed for A/C are documented in
+`docs/HANDOFF_B.md`; no protected starter files, labels or A-owned scoring
+implementation were modified. Final evaluation was not performed.
+The isolated LF validation is recorded in `results/role_b_logs/lf_checkout.txt`;
+it establishes byte-exact reproducibility without rewriting the active
+checkout's protected files. The separate Windows path-format test issue is
+still pending A's portability fix.
+
+Selected raw output (complete per-command transcripts are in the logs):
+
+```text
+alpha_star=2; beta_star=1; 64/64 prefix and harness comparisons passed
+Failure analysis: 56 entries; 43 failures; 13 successes
+```
+
+The seven-method ranking table is `results/dev_ranking.{json,csv}`; the
+1,000-trial selection export is `results/selection_1000.json`. Report-ready
+tables, three distinct failure cases and a separate C3 normalization table
+are generated in `docs/role_b_development.md`. Verify generated B artifacts
+with `python -X utf8 role_b_experiments.py --check`.

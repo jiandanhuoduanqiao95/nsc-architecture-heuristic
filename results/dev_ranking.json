@@ -1,0 +1,156 @@
+{
+  "split": "development",
+  "architectures": 100,
+  "alpha_star": 2.0,
+  "beta_star": 1.0,
+  "matched_rule": "same d_model; min(total)/max(total)>=0.90",
+  "ranking": {
+    "original_nsc": {
+      "spearman_rho": 0.9697449744974498,
+      "all_pairs": {
+        "pairs": 4950,
+        "concordant": 4607,
+        "discordant": 343,
+        "score_only_ties": 0,
+        "quality_only_ties": 0,
+        "both_ties": 0,
+        "tau_b": 0.8614141414141414
+      },
+      "size_controlled_pairs": {
+        "pairs": 180,
+        "concordant": 146,
+        "discordant": 34,
+        "score_only_ties": 0,
+        "quality_only_ties": 0,
+        "both_ties": 0,
+        "tau_b": 0.6222222222222222
+      }
+    },
+    "m2_alpha_2": {
+      "spearman_rho": 0.9727452745274527,
+      "all_pairs": {
+        "pairs": 4950,
+        "concordant": 4633,
+        "discordant": 317,
+        "score_only_ties": 0,
+        "quality_only_ties": 0,
+        "both_ties": 0,
+        "tau_b": 0.8719191919191919
+      },
+      "size_controlled_pairs": {
+        "pairs": 180,
+        "concordant": 145,
+        "discordant": 35,
+        "score_only_ties": 0,
+        "quality_only_ties": 0,
+        "both_ties": 0,
+        "tau_b": 0.6111111111111112
+      }
+    },
+    "m3_beta_1": {
+      "spearman_rho": 0.9711851185118512,
+      "all_pairs": {
+        "pairs": 4950,
+        "concordant": 4614,
+        "discordant": 336,
+        "score_only_ties": 0,
+        "quality_only_ties": 0,
+        "both_ties": 0,
+        "tau_b": 0.8642424242424243
+      },
+      "size_controlled_pairs": {
+        "pairs": 180,
+        "concordant": 145,
+        "discordant": 35,
+        "score_only_ties": 0,
+        "quality_only_ties": 0,
+        "both_ties": 0,
+        "tau_b": 0.6111111111111112
+      }
+    },
+    "position_example": {
+      "spearman_rho": 0.9700690069006901,
+      "all_pairs": {
+        "pairs": 4950,
+        "concordant": 4616,
+        "discordant": 334,
+        "score_only_ties": 0,
+        "quality_only_ties": 0,
+        "both_ties": 0,
+        "tau_b": 0.8650505050505051
+      },
+      "size_controlled_pairs": {
+        "pairs": 180,
+        "concordant": 146,
+        "discordant": 34,
+        "score_only_ties": 0,
+        "quality_only_ties": 0,
+        "both_ties": 0,
+        "tau_b": 0.6222222222222222
+      }
+    },
+    "reported_parameters": {
+      "spearman_rho": 0.7278727872787278,
+      "all_pairs": {
+        "pairs": 4950,
+        "concordant": 3900,
+        "discordant": 1050,
+        "score_only_ties": 0,
+        "quality_only_ties": 0,
+        "both_ties": 0,
+        "tau_b": 0.5757575757575758
+      },
+      "size_controlled_pairs": {
+        "pairs": 180,
+        "concordant": 102,
+        "discordant": 78,
+        "score_only_ties": 0,
+        "quality_only_ties": 0,
+        "both_ties": 0,
+        "tau_b": 0.13333333333333333
+      }
+    },
+    "reference_flops": {
+      "spearman_rho": 0.9679476986173137,
+      "all_pairs": {
+        "pairs": 4950,
+        "concordant": 4599,
+        "discordant": 350,
+        "score_only_ties": 1,
+        "quality_only_ties": 0,
+        "both_ties": 0,
+        "tau_b": 0.8584705569614586
+      },
+      "size_controlled_pairs": {
+        "pairs": 180,
+        "concordant": 146,
+        "discordant": 34,
+        "score_only_ties": 0,
+        "quality_only_ties": 0,
+        "both_ties": 0,
+        "tau_b": 0.6222222222222222
+      }
+    },
+    "ablation": {
+      "spearman_rho": 0.9697449744974498,
+      "all_pairs": {
+        "pairs": 4950,
+        "concordant": 4607,
+        "discordant": 343,
+        "score_only_ties": 0,
+        "quality_only_ties": 0,
+        "both_ties": 0,
+        "tau_b": 0.8614141414141414
+      },
+      "size_controlled_pairs": {
+        "pairs": 180,
+        "concordant": 146,
+        "discordant": 34,
+        "score_only_ties": 0,
+        "quality_only_ties": 0,
+        "both_ties": 0,
+        "tau_b": 0.6222222222222222
+      }
+    }
+  }
+}

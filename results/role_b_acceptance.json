@@ -1,0 +1,16 @@
+{
+  "starter": "FAIL (see raw log)",
+  "checks": "FAIL (see raw log)",
+  "unittest": "FAIL (see raw log)",
+  "mutations": "PASS",
+  "selection_protocol": "PASS",
+  "doc_counts": "PASS",
+  "stdlib": "PASS",
+  "figures": "PASS",
+  "report_pack": "PASS",
+  "artifact_check": "PASS",
+  "mutation_designated_catchers": "7/7 confirmed (CH01 excluded)",
+  "export_negative_cases": "4/4 rejected",
+  "python": "3.10.22",
+  "platform": "Windows-10-10.0.26100-SP0"
+}

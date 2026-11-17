@@ -1,0 +1,29 @@
+$ D:\AIcourseAPP\envs\nsc-role-b\python.exe -X utf8 checks/run_checks.py --no-write
+CH01 starter_integrity      FAIL (0/15, byte-exact) [failed]
+     nsc.py: sha256 c14835804d4161cda1d820f66b419bd648e358c4071be1c413ec9843ba0ff61e != manifest 1f9785f5f0a29a9d5d99ddfa41367a47248e067128c34a6eb4c56d091400d88a
+     evaluate.py: sha256 ae2d02d3eb9daa93979c79b5a6501193858816ab088938020b354674ef476912 != manifest 69540fad7a2e306a35c2997a1c42183e61cf045383cd5b60c031d12a3bf61c32
+     check_starter.py: sha256 94d5a8362880a5f47f5974e3698e11bd216fc76c90d41b0282336c898ec91a86 != manifest d3bc852adf3c5862a59c6ce225788016e8224537845e8d12a91422cbf2275544
+     expected_development.json: sha256 0b2b21c7d903dd9c5173faaae9cea57f5b8a2ddb2b079dcb1b014c5611a7dfb8 != manifest a72a09959810fc35aceb5e05ba27172b152dc1f58a4b15ed3bed10553001fa0b
+     data/architectures.json: sha256 17974e1bd8bab82a924f996971b771633cd8afc53ebca13454524803605e764c != manifest 4e1972de8e7bb75c1c796ba44899c1fc174f840e46e3bebc6120951e8fcc3638
+     ... 10 more failures
+CH02 toy_conventions        PASS (7/7, relative 1e-9) [pass]
+CH03 expected_dev_parity    PASS (3/3, bitwise (D0-1: 1 ULP)) [pass]
+CH04 layer_identity         PASS (200/200, bitwise) [pass]
+CH05 alpha0_exact           PASS (200/200, bitwise) [pass]
+CH06 finite_positive        PASS (200/200, isfinite) [pass]
+CH07 prefix_properties      PASS (200/200, bitwise / 1e-15) [pass]
+CH08 single_layer           PASS (32/32, bitwise) [pass]
+CH09 alpha_monotone         PASS (200/200, 1e-15) [pass]
+CH10 alpha_limit            PASS (200/200, 1e-9) [pass]
+CH11 reorder_controls       PASS (9846/9846, 1e-14 / exact) [pass]
+CH12 width_monotone         PASS (4/4, strict) [pass]
+CH13 determinism            PASS (3/3, bitwise) [pass]
+CH14 no_label_access        PASS (2/2, 0 occurrences) [pass]
+CH15 python39_stdlib        PASS (61/61, 0 violations) [pass]
+CH16 breakdown_consistency  PASS (100/100, bitwise) [pass]
+CH17 size_control_count     PASS (6/6, exact) [pass]
+CH18 freeze_consistency     PASS (4/4, exact) [pass]
+17/18 checks passed
+(--no-write: the default results/checks.json is left untouched)
+
+exit=1 wall_seconds=2.713

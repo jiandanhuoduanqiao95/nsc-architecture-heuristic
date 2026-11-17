@@ -1,0 +1,30 @@
+$ D:\AIcourseAPP\envs\nsc-role-b\python.exe -X utf8 -m unittest discover -s tests -t .
+.......................D:\CityULearning\PycharmProjects\nsc-architecture-heuristic\tools\make_figures.py:66: ResourceWarning: unclosed file <_io.TextIOWrapper name='D:\\CityULearning\\PycharmProjects\\nsc-architecture-heuristic\\results\\reorder_pairs.csv' mode='r' encoding='utf-8'>
+  rows = list(csv.DictReader(REORDER_CSV.open(encoding="utf-8")))
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+D:\CityULearning\PycharmProjects\nsc-architecture-heuristic\tools\make_figures.py:134: ResourceWarning: unclosed file <_io.TextIOWrapper name='D:\\CityULearning\\PycharmProjects\\nsc-architecture-heuristic\\results\\weighting_diagnostic.csv' mode='r' encoding='utf-8'>
+  rows = list(csv.DictReader(WEIGHTING_CSV.open(encoding="utf-8")))
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+.D:\CityULearning\PycharmProjects\nsc-architecture-heuristic\tests\test_figures.py:32: ResourceWarning: unclosed file <_io.TextIOWrapper name='D:\\CityULearning\\PycharmProjects\\nsc-architecture-heuristic\\results\\reorder_pairs.csv' mode='r' encoding='UTF-8'>
+  rows = list(csv.DictReader((REPO / "results" / "reorder_pairs.csv").open()))
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+.D:\CityULearning\PycharmProjects\nsc-architecture-heuristic\tests\test_figures.py:55: ResourceWarning: unclosed file <_io.TextIOWrapper name='D:\\CityULearning\\PycharmProjects\\nsc-architecture-heuristic\\results\\weighting_diagnostic.csv' mode='r' encoding='UTF-8'>
+  rows = {r["config_id"]: r for r in csv.DictReader(
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+.......................................................................F................
+======================================================================
+FAIL: test_self_test_passes (tests.test_selection_failures.SelfTestTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "D:\CityULearning\PycharmProjects\nsc-architecture-heuristic\tests\test_selection_failures.py", line 26, in test_self_test_passes
+    self.assertEqual(sf.self_test(), 0)
+  File "D:\CityULearning\PycharmProjects\nsc-architecture-heuristic\tools\selection_failures.py", line 576, in self_test
+    assert example.read_text(encoding="utf-8") == produced.read_text(
+AssertionError: D:\CityULearning\PycharmProjects\nsc-architecture-heuristic\docs\examples\selection_failures_example.md drifted; regenerate it
+
+----------------------------------------------------------------------
+Ran 113 tests in 2.938s
+
+FAILED (failures=1)
+
+exit=1 wall_seconds=3.044

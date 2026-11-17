@@ -1,0 +1,15 @@
+$ D:\AIcourseAPP\envs\nsc-role-b\python.exe -X utf8 tools/make_position_variants.py --verify
+OK   m3_beta_0.00.py: results\dev_grid\m3_beta_0.00.json: student block matches recomputation, ablation == original_nsc, student == original_nsc
+OK   m3_beta_0.00.py: scores bitwise (primitive + independent formula); ablation == original_nsc on 200; score == original_nsc on 200
+OK   m3_beta_0.25.py: results\dev_grid\m3_beta_0.25.json: student block matches recomputation, ablation == original_nsc, student != original_nsc
+OK   m3_beta_0.25.py: scores bitwise (primitive + independent formula); ablation == original_nsc on 200; score < original_nsc on 200
+OK   m3_beta_0.50.py: results\dev_m3_beta_0.50.json: student block matches recomputation, ablation == original_nsc, student != original_nsc
+OK   m3_beta_0.50.py: results\dev_grid\m3_beta_0.50.json: student block matches recomputation, ablation == original_nsc, student != original_nsc
+OK   m3_beta_0.50.py: scores bitwise (primitive + independent formula); ablation == original_nsc on 200; score < original_nsc on 200
+OK   m3_beta_1.00.py: results\dev_grid\m3_beta_1.00.json: student block matches recomputation, ablation == original_nsc, student != original_nsc
+OK   m3_beta_1.00.py: scores bitwise (primitive + independent formula); ablation == original_nsc on 200; score < original_nsc on 200
+OK   m3_beta_2.00.py: results\dev_grid\m3_beta_2.00.json: student block matches recomputation, ablation == original_nsc, student != original_nsc
+OK   m3_beta_2.00.py: scores bitwise (primitive + independent formula); ablation == original_nsc on 200; score < original_nsc on 200
+M3 VARIANTS OK
+
+exit=0 wall_seconds=0.820

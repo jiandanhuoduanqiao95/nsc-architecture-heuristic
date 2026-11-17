@@ -1,0 +1,56 @@
+Isolated LF checkout: C:\Users\ADMINI~1\AppData\Local\Temp\nsc-role-b-lf-ovs5mxew
+$ D:\AIcourseAPP\envs\nsc-role-b\python.exe -X utf8 check_starter.py
+PASS: MP identities/convergence, reorder controls, resource arithmetic,
+rank ties, selection, 200 configurations, split separation and data hashes.
+Toy original NSC: 121.820169804 (both orders)
+Toy position example: 96.957958136 vs 85.772296570
+
+exit=0 wall_seconds=0.399
+$ D:\AIcourseAPP\envs\nsc-role-b\python.exe -X utf8 checks/run_checks.py --no-write
+CH01 starter_integrity      PASS (15/15, byte-exact) [pass]
+CH02 toy_conventions        PASS (7/7, relative 1e-9) [pass]
+CH03 expected_dev_parity    PASS (3/3, bitwise (D0-1: 1 ULP)) [pass]
+CH04 layer_identity         PASS (200/200, bitwise) [pass]
+CH05 alpha0_exact           PASS (200/200, bitwise) [pass]
+CH06 finite_positive        PASS (200/200, isfinite) [pass]
+CH07 prefix_properties      PASS (200/200, bitwise / 1e-15) [pass]
+CH08 single_layer           PASS (32/32, bitwise) [pass]
+CH09 alpha_monotone         PASS (200/200, 1e-15) [pass]
+CH10 alpha_limit            PASS (200/200, 1e-9) [pass]
+CH11 reorder_controls       PASS (9846/9846, 1e-14 / exact) [pass]
+CH12 width_monotone         PASS (4/4, strict) [pass]
+CH13 determinism            PASS (3/3, bitwise) [pass]
+CH14 no_label_access        PASS (2/2, 0 occurrences) [pass]
+CH15 python39_stdlib        PASS (61/61, 0 violations) [pass]
+CH16 breakdown_consistency  PASS (100/100, bitwise) [pass]
+CH17 size_control_count     PASS (6/6, exact) [pass]
+CH18 freeze_consistency     PASS (4/4, exact) [pass]
+18/18 checks passed
+(--no-write: the default results/checks.json is left untouched)
+
+exit=0 wall_seconds=2.748
+$ D:\AIcourseAPP\envs\nsc-role-b\python.exe -X utf8 checks/run_checks.py --mutations
+MU1 alpha0_returns_zero        caught by CH05 200/200 failed, CH08 32/32 failed, CH09 200/200 failed, CH11 1/9846 failed, CH16 20/100 failed
+MU2 prefix_includes_current    caught by CH07 200/200 failed, CH08 32/32 failed, CH10 200/200 failed, CH11 19/9846 failed
+MU3 drop_out_projection        caught by CH03 1/3 failed, CH04 200/200 failed, CH05 200/200 failed, CH08 32/32 failed, CH11 1/9846 failed, CH16 100/100 failed
+MU4 uniform_discount           caught by CH08 32/32 failed, CH10 200/200 failed, CH11 9817/9846 failed, CH16 80/100 failed
+MU5 reverse_weights            caught by CH07 200/200 failed, CH08 32/32 failed, CH10 200/200 failed, CH11 9846/9846 failed
+MU6 size_control_threshold_095 caught by CH17 1/6 failed
+MU7 freeze_alpha_mismatch      caught by CH18 1/4 failed
+7/7 mutations caught
+
+exit=0 wall_seconds=14.662
+$ D:\AIcourseAPP\envs\nsc-role-b\python.exe -X utf8 role_b_experiments.py --check
+ROLE B DEVELOPMENT | Python 3.10.22 | Windows-10-10.0.26100-SP0 | D:\AIcourseAPP\envs\nsc-role-b\python.exe
+CHECK results/selection_1000.json
+CHECK results/dev_ranking.json
+CHECK results/selection_200_appendix.json
+CHECK results/dev_ranking.csv
+CHECK results/selection_1000_table.csv
+CHECK results/selection_failures.csv
+CHECK docs/selection_failures.md
+CHECK docs/role_b_development.md
+alpha_star=2; beta_star=1; 64/64 prefix and harness comparisons passed
+Failure analysis: 56 entries; 43 failures; 13 successes
+
+exit=0 wall_seconds=2.096

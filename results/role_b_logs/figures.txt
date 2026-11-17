@@ -1,0 +1,4 @@
+$ D:\AIcourseAPP\envs\nsc-role-b\python.exe -X utf8 tools/make_figures.py --check
+FIGURES OK (committed SVGs equal a fresh render)
+
+exit=0 wall_seconds=0.042

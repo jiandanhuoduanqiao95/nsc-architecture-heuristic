@@ -1,0 +1,4 @@
+$ D:\AIcourseAPP\envs\nsc-role-b\python.exe -X utf8 tools/check_py39.py
+PY39 OK (all .py files parse as Python 3.9; imports stdlib/local only)
+
+exit=0 wall_seconds=0.105

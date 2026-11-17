@@ -1,0 +1,11 @@
+$ D:\AIcourseAPP\envs\nsc-role-b\python.exe -X utf8 evaluate.py --split development --student variants/m3_beta_0.50.py --output results/dev_grid/m3_beta_0.50.json
+original_nsc         rho=  0.969745 tau=  0.861414 controlled_tau=  0.622222
+position_example     rho=  0.970069 tau=  0.865051 controlled_tau=  0.622222
+student              rho=  0.970897 tau=  0.863434 controlled_tau=  0.611111
+ablation             rho=  0.969745 tau=  0.861414 controlled_tau=  0.622222
+reported_parameters  rho=  0.727873 tau=  0.575758 controlled_tau=  0.133333
+reference_flops      rho=  0.967948 tau=  0.858471 controlled_tau=  0.622222
+100 development architectures; 8 budget/k combinations
+Full results: results\dev_grid\m3_beta_0.50.json
+
+exit=0 wall_seconds=0.651

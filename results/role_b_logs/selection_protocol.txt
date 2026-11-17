@@ -1,0 +1,6 @@
+$ D:\AIcourseAPP\envs\nsc-role-b\python.exe -X utf8 tools/selection_ext.py --self-test
+PARITY OK
+PREFIX OK
+TRIALS OK
+
+exit=0 wall_seconds=0.082
